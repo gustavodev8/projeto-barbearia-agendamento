@@ -133,9 +133,12 @@ const AdminPage = () => {
   const concluded        = allToday.filter((b) => b.status === "concluido").length;
   const upcoming         = allToday.filter((b) => b.status === "confirmado").length;
   const needsReschedule  = allToday.filter((b) => b.status === "reagendamento").length;
+  const noShowFees       = allToday
+    .filter((b) => b.status === "nao_compareceu")
+    .reduce((s, b) => s + Math.round(b.servicePrice * 0.5), 0);
   const revenueRealized  = allToday
     .filter((b) => b.status === "concluido")
-    .reduce((s, b) => s + b.servicePrice, 0);
+    .reduce((s, b) => s + b.servicePrice, 0) + noShowFees;
 
   // Ações de ocorrência
   const markAbsent = (barber: BarberInfo) => {
@@ -168,10 +171,11 @@ const AdminPage = () => {
     });
   };
 
-  const markNoShow = (bookingId: string, clientName: string) => {
+  const markNoShow = (bookingId: string, clientName: string, servicePrice: number) => {
+    const fee = Math.round(servicePrice * 0.5);
     setConfirm({
       title: "Registrar não comparecimento",
-      description: `${clientName} não compareceu ao agendamento. O horário será marcado como "Não compareceu" e a taxa de reserva será retida.`,
+      description: `${clientName} não compareceu ao agendamento. Uma taxa de 50% (R$ ${fee},00) será cobrada pelo horário reservado e perdido.`,
       onConfirm: () => setOverrideStatus((prev) => ({ ...prev, [bookingId]: "nao_compareceu" })),
     });
   };
@@ -249,7 +253,7 @@ const AdminPage = () => {
             <MetricCard icon={<CalendarDays className="w-4 h-4" />} label="Agendamentos" value={String(allToday.length)}
               sub={`${concluded} concluídos · ${upcoming} a seguir`} />
             <MetricCard icon={<DollarSign className="w-4 h-4" />} label="Receita realizada" value={`R$ ${revenueRealized}`}
-              sub={`${concluded} serviços concluídos`} highlight />
+              sub={noShowFees > 0 ? `${concluded} serviços · R$ ${noShowFees} em taxas` : `${concluded} serviços concluídos`} highlight />
             <MetricCard icon={<TrendingUp className="w-4 h-4" />} label="Receita do mês" value="R$ 6.840"
               sub="↑ 12% vs mês anterior" />
             <MetricCard icon={<Users className="w-4 h-4" />} label="Clientes no mês" value="52"
@@ -429,7 +433,14 @@ const AdminPage = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground truncate">{b.serviceName}</p>
-                      <p className="text-sm font-semibold text-foreground">R$ {b.servicePrice}</p>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">
+                          R$ {b.status === "nao_compareceu" ? Math.round(b.servicePrice * 0.5) : b.servicePrice}
+                        </p>
+                        {b.status === "nao_compareceu" && (
+                          <p className="text-[9px] text-muted-foreground font-medium">taxa 50%</p>
+                        )}
+                      </div>
                       <span className={cn(
                         "inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-sm border w-fit",
                         STATUS_CONFIG[b.status].className
@@ -441,7 +452,7 @@ const AdminPage = () => {
                       <div>
                         {b.status === "confirmado" && (
                           <button
-                            onClick={() => markNoShow(b.id, b.clientName)}
+                            onClick={() => markNoShow(b.id, b.clientName, b.servicePrice)}
                             className="text-[10px] font-medium text-muted-foreground hover:text-unavailable transition-colors whitespace-nowrap"
                           >
                             Não compareceu
@@ -458,7 +469,11 @@ const AdminPage = () => {
               <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
                 <p className="text-xs text-muted-foreground">{filtered.length} agendamento{filtered.length !== 1 ? "s" : ""}</p>
                 <p className="text-sm font-bold text-primary">
-                  R$ {filtered.filter((b) => b.status !== "cancelado" && b.status !== "nao_compareceu").reduce((s, b) => s + b.servicePrice, 0)},00
+                  R$ {filtered.reduce((s, b) => {
+                    if (b.status === "cancelado" || b.status === "reagendamento") return s;
+                    if (b.status === "nao_compareceu") return s + Math.round(b.servicePrice * 0.5);
+                    return s + b.servicePrice;
+                  }, 0)},00
                 </p>
               </div>
             )}
