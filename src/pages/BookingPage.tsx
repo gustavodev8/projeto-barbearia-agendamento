@@ -33,8 +33,8 @@ const morningSlots = timeSlots.slice(0, 6);
 const afternoonSlots = timeSlots.slice(6);
 
 const steps = [
-  { number: 1, label: "Data & Horário" },
-  { number: 2, label: "Serviço" },
+  { number: 1, label: "Serviço" },
+  { number: 2, label: "Data & Horário" },
   { number: 3, label: "Pagamento" },
 ];
 
@@ -165,9 +165,61 @@ const BookingPage = () => {
         </div>
 
         {/* ══════════════════════════════════════
-            STEP 1 — Data & Horário
+            STEP 1 — Serviço
         ══════════════════════════════════════ */}
         {step === 1 && (
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+              Serviço
+            </p>
+
+            {servicos.map((svc) => {
+              const isSelected = selectedServiceId === svc.id;
+              return (
+                <button
+                  key={svc.id}
+                  onClick={() => setSelectedServiceId(svc.id)}
+                  className={cn(
+                    "w-full text-left rounded-md border px-4 py-4 transition-all",
+                    isSelected
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-border bg-card hover:border-foreground/20 hover:bg-muted/20"
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={cn(
+                        "w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-all",
+                        isSelected ? "border-primary bg-primary" : "border-muted-foreground/30"
+                      )}>
+                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-foreground text-sm leading-tight">{svc.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{svc.description}</p>
+                      </div>
+                    </div>
+                    <span className={cn(
+                      "text-sm font-bold shrink-0 transition-colors",
+                      isSelected ? "text-primary" : "text-foreground"
+                    )}>
+                      R$ {svc.price},00
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+
+            <Button onClick={() => setStep(2)} disabled={!selectedServiceId} className="w-full" size="lg">
+              Próximo <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════
+            STEP 2 — Data & Horário
+        ══════════════════════════════════════ */}
+        {step === 2 && (
           <div className="space-y-4">
 
             {/* Calendário */}
@@ -268,59 +320,7 @@ const BookingPage = () => {
               </div>
             )}
 
-            <Button onClick={() => setStep(2)} disabled={!date || !selectedSlot} className="w-full" size="lg">
-              Próximo <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════
-            STEP 2 — Serviço
-        ══════════════════════════════════════ */}
-        {step === 2 && (
-          <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">
-              Serviço
-            </p>
-
-            {servicos.map((svc) => {
-              const isSelected = selectedServiceId === svc.id;
-              return (
-                <button
-                  key={svc.id}
-                  onClick={() => setSelectedServiceId(svc.id)}
-                  className={cn(
-                    "w-full text-left rounded-md border px-4 py-4 transition-all",
-                    isSelected
-                      ? "border-primary bg-primary/5 shadow-sm"
-                      : "border-border bg-card hover:border-foreground/20 hover:bg-muted/20"
-                  )}
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={cn(
-                        "w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-all",
-                        isSelected ? "border-primary bg-primary" : "border-muted-foreground/30"
-                      )}>
-                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-foreground text-sm leading-tight">{svc.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{svc.description}</p>
-                      </div>
-                    </div>
-                    <span className={cn(
-                      "text-sm font-bold shrink-0 transition-colors",
-                      isSelected ? "text-primary" : "text-foreground"
-                    )}>
-                      R$ {svc.price},00
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-
-            <Button onClick={() => setStep(3)} disabled={!selectedServiceId} className="w-full" size="lg">
+            <Button onClick={() => setStep(3)} disabled={!date || !selectedSlot} className="w-full" size="lg">
               Próximo <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
