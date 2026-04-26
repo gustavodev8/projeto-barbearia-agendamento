@@ -529,23 +529,24 @@ const AdminPage = () => {
                     )}
                   >
                     {/* Barra de Status Lateral */}
-                    <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", STATUS_CONFIG[b.status].bg.replace("bg-", "bg-").replace("100", "500"))} />
+                    <div className={cn("absolute left-0 top-0 bottom-0 w-1", STATUS_CONFIG[b.status].bg.replace("100", "400"))} />
 
-                    <div className="flex items-stretch p-4 gap-4">
-                      {/* Horário e Data */}
-                      <div className="flex flex-col items-center justify-center border-r border-slate-50 pr-4 min-w-[80px]">
-                        <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none mb-1.5">
+                    {/* Linha superior: data/hora · info · menu */}
+                    <div className="flex items-center pl-4 pr-2 pt-3.5 pb-2.5 gap-3">
+                      {/* Data + Horário */}
+                      <div className="flex flex-col items-center justify-center border-r border-slate-100 pr-3 flex-shrink-0 min-w-[52px]">
+                        <span className="text-[9px] font-black text-primary uppercase tracking-widest leading-none">
                           {format(new Date(b.date + "T12:00:00"), "dd MMM", { locale: ptBR })}
                         </span>
-                        <span className="text-xl font-black text-slate-900 leading-none">
+                        <span className="text-base font-black text-slate-900 leading-tight mt-0.5">
                           {b.slot}
                         </span>
                       </div>
 
-                      {/* Info Principal */}
-                      <div className="flex-1 min-w-0 py-0.5">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-base font-black text-slate-900 truncate leading-tight">
+                      {/* Info principal */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <p className="text-sm font-black text-slate-900 truncate leading-tight">
                             {b.clientName}
                           </p>
                           <Badge
@@ -557,24 +558,13 @@ const AdminPage = () => {
                             {STATUS_CONFIG[b.status].label}
                           </Badge>
                         </div>
-                        
-                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide truncate mb-2">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide truncate">
                           {b.serviceName}
                         </p>
-
-                        {/* Código de Validação Estilizado */}
-                        <div className="inline-flex items-center bg-slate-50 rounded-lg px-2.5 py-1 border border-slate-100 group">
-                          <span className="text-[9px] font-black text-slate-400 uppercase mr-2 tracking-tighter">
-                            Check-in:
-                          </span>
-                          <span className="text-[11px] font-black text-primary tracking-widest">
-                            {b.validationCode}
-                          </span>
-                        </div>
                       </div>
 
-                      {/* Ações */}
-                      <div className="flex flex-col justify-between items-end gap-2" onClick={e => e.stopPropagation()}>
+                      {/* Menu */}
+                      <div className="flex-shrink-0" onClick={e => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-300 transition-colors">
@@ -599,16 +589,38 @@ const AdminPage = () => {
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-
-                        {b.status === "confirmado" && (
-                          <Button
-                            onClick={() => updateBookingStatus(b.id, "concluido")}
-                            className="h-8 px-4 rounded-lg bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-md active:shadow-none hover:bg-slate-800 transition-all"
-                          >
-                            Finalizar
-                          </Button>
-                        )}
                       </div>
+                    </div>
+
+                    {/* Linha inferior: código + botão */}
+                    <div
+                      className="flex items-center justify-between px-4 pb-3.5 border-t border-slate-50 pt-2.5"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <div className="inline-flex items-center bg-slate-50 rounded-lg px-2.5 py-1 border border-slate-100">
+                        <span className="text-[9px] font-black text-slate-400 uppercase mr-1.5 tracking-tighter">
+                          Check-in:
+                        </span>
+                        <span className="text-[11px] font-black text-primary tracking-widest">
+                          {b.validationCode}
+                        </span>
+                      </div>
+
+                      {b.status === "confirmado" ? (
+                        <Button
+                          onClick={() => updateBookingStatus(b.id, "concluido")}
+                          className="h-8 px-4 rounded-lg bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider hover:bg-slate-800 transition-all"
+                        >
+                          Finalizar
+                        </Button>
+                      ) : (
+                        <span className={cn(
+                          "text-[10px] font-black uppercase",
+                          STATUS_CONFIG[b.status].color
+                        )}>
+                          {STATUS_CONFIG[b.status].label}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))
