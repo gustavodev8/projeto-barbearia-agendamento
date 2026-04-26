@@ -442,10 +442,17 @@ const BookingPage = () => {
               <p className="text-4xl font-black text-slate-900 tracking-wider">{validationCode}</p>
             </div>
 
-            {/* Simple Print Alert */}
-            <div className="flex items-center gap-2 mb-8 text-primary">
-              <Smartphone className="w-3.5 h-3.5" />
-              <p className="font-bold text-[10px] uppercase tracking-tight">Tire um print para mostrar no dia</p>
+            {/* Specific Formal Print Alert */}
+            <div className="flex flex-col items-center gap-2 mb-8 bg-primary/5 p-4 rounded-2xl border border-primary/10">
+              <div className="flex items-center gap-2 text-primary">
+                <Smartphone className="w-4 h-4" />
+                <p className="font-black text-[11px] uppercase tracking-tighter text-center">
+                  Tire um print desta tela!
+                </p>
+              </div>
+              <p className="text-[10px] font-medium text-slate-500 leading-tight">
+                Você irá precisar apresentá-la no dia <br className="xs:hidden"/> do seu atendimento!
+              </p>
             </div>
 
             <Button 
