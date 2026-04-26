@@ -1,36 +1,35 @@
-import { CalendarDays, LayoutDashboard, Sparkles } from "lucide-react";
+import { CalendarDays, LayoutDashboard, Sparkles, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="bg-card border-b border-border px-4 py-3 flex items-center justify-between">
+    <header className="bg-white border-b border-border/50 px-4 py-4 flex items-center justify-between sticky top-0 z-50 backdrop-blur-md bg-white/80">
       <button
         onClick={() => navigate("/")}
-        className="flex items-center gap-2 font-sans font-bold text-lg text-foreground tracking-tight"
+        className="flex items-center gap-2.5 font-sans font-bold text-lg text-foreground tracking-tight"
       >
-        <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-primary-foreground" />
+        <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center shadow-sm shadow-primary/20">
+          <Sparkles className="w-5 h-5 text-white" />
         </div>
-        Beleza & Estilo
+        <span className="hidden sm:inline">Beleza & Estilo</span>
       </button>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <button
           onClick={() => navigate("/meus-agendamentos")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
         >
           <CalendarDays className="w-4 h-4" />
-          <span className="hidden sm:inline">Meus Agendamentos</span>
+          <span className="hidden xs:inline">Meus Horários</span>
         </button>
         <button
           onClick={() => navigate("/admin")}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground/60 hover:text-foreground transition-colors"
+          className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-all"
           title="Painel Admin"
         >
-          <LayoutDashboard className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Admin</span>
+          <LayoutDashboard className="w-4 h-4" />
         </button>
       </div>
     </header>

@@ -110,7 +110,7 @@ const LandingPage = () => {
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-xs">Onde estamos</h3>
-            <p className="text-[11px] text-muted-foreground">Av. Principal, 123 - Centro, São Paulo</p>
+            <p className="text-[11px] text-muted-foreground">Alagoinhas, Bahia</p>
           </div>
           <button className="text-[10px] font-bold text-primary uppercase tracking-tighter">
             Como chegar
@@ -127,9 +127,14 @@ const LandingPage = () => {
           <LayoutDashboard className="w-3 h-3" />
           Acesso Administrativo
         </button>
-        <p className="text-[10px] text-muted-foreground/30 uppercase tracking-widest">
-          © {new Date().getFullYear()} Beleza & Estilo
-        </p>
+        <div className="flex flex-col items-center gap-1 opacity-20">
+          <p className="text-[9px] text-muted-foreground uppercase tracking-[0.3em] font-bold">
+            Quartzus
+          </p>
+          <p className="text-[8px] text-muted-foreground uppercase tracking-widest">
+            © {new Date().getFullYear()} Beleza & Estilo
+          </p>
+        </div>
       </footer>
     </div>
   );

@@ -1,119 +1,114 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "@/components/Header";
 import { useReservations } from "@/contexts/ReservationContext";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import Header from "@/components/Header";
+import { CalendarDays, Clock, MapPin, X, Sparkles, AlertCircle } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CalendarX, Sparkles, User, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const MyReservations = () => {
-  const navigate = useNavigate();
   const { bookings, cancelBooking } = useReservations();
-  const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
-
-  const today = new Date().toISOString().split("T")[0];
-  const upcoming = bookings.filter((b) => b.date >= today);
-  const past = bookings.filter((b) => b.date < today);
-  const displayed = tab === "upcoming" ? upcoming : past;
+  const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-secondary/30 flex flex-col font-sans">
       <Header />
-      <main className="max-w-2xl mx-auto px-4 py-6">
 
-        <button
-          onClick={() => navigate("/")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Voltar
-        </button>
+      <main className="flex-1 max-w-md mx-auto w-full px-5 py-8">
+        <header className="mb-8">
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Meus Horários</h1>
+          <p className="text-sm text-muted-foreground mt-2">Acompanhe e gerencie seus agendamentos.</p>
+        </header>
 
-        <h1 className="text-xl font-bold text-foreground mb-5">Meus Agendamentos</h1>
-
-        {/* Tabs */}
-        <div className="flex gap-1 bg-muted rounded-md p-1 mb-5">
-          {(["upcoming", "past"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={cn(
-                "flex-1 py-2 text-sm font-medium rounded-sm transition-colors",
-                tab === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              )}
+        {bookings.length === 0 ? (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-[40px] p-10 text-center border border-border/40 shadow-sm"
+          >
+            <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-6">
+              <CalendarDays className="w-10 h-10 text-primary/30" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground mb-2">Nada por aqui ainda</h2>
+            <p className="text-sm text-muted-foreground mb-8">Você ainda não tem agendamentos confirmados.</p>
+            <Button 
+              onClick={() => navigate("/profissionais")} 
+              className="w-full h-14 rounded-2xl text-lg font-bold shadow-lg shadow-primary/20"
             >
-              {t === "upcoming" ? `Próximos (${upcoming.length})` : `Passados (${past.length})`}
-            </button>
-          ))}
-        </div>
-
-        {displayed.length === 0 ? (
-          <div className="text-center py-16">
-            <CalendarX className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">Nenhum agendamento encontrado</p>
-          </div>
+              Agendar agora
+            </Button>
+          </motion.div>
         ) : (
-          <div className="space-y-3">
-            {displayed.map((b) => (
-              <div
+          <div className="space-y-4">
+            {bookings.map((b, i) => (
+              <motion.div
                 key={b.id}
-                className="bg-card border border-border rounded-md overflow-hidden"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-white rounded-3xl border border-border/60 p-6 shadow-sm relative overflow-hidden group"
               >
-                {/* Corpo principal */}
-                <div className="px-4 pt-4 pb-3 flex items-start justify-between gap-3">
-
-                  {/* Info esquerda */}
-                  <div className="space-y-1.5 min-w-0">
-                    {/* Nome do cliente — peso maior */}
-                    <div className="flex items-center gap-2">
-                      <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                      <p className="font-semibold text-foreground text-sm leading-tight">{b.clientName}</p>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full -z-0 translate-x-12 -translate-y-12 transition-transform group-hover:scale-150" />
+                
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="font-extrabold text-lg text-foreground">{b.serviceName}</h3>
+                      <p className="text-xs font-bold text-primary uppercase tracking-widest mt-0.5">{b.professionalName}</p>
                     </div>
-                    {/* Profissional */}
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                      <p className="text-sm text-muted-foreground">{b.professionalName}</p>
-                    </div>
-                    {/* Data e horário */}
-                    <p className="text-xs text-muted-foreground/70 pl-[1.375rem]">
-                      {b.date.split("-").reverse().join("/")} · {b.slot}
-                    </p>
-                  </div>
-
-                  {/* Ações direita — sempre em coluna */}
-                  <div className="flex flex-col items-end gap-2 shrink-0">
-                    <span
-                      className={cn(
-                        "text-[11px] font-semibold px-2.5 py-0.5 rounded-sm border",
-                        tab === "upcoming"
-                          ? "border-available/40 text-available bg-available/5"
-                          : "border-border text-muted-foreground bg-muted/30"
-                      )}
+                    <button 
+                      onClick={() => cancelBooking(b.id)}
+                      className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                      title="Cancelar"
                     >
-                      {tab === "upcoming" ? "Confirmado" : "Concluído"}
-                    </span>
-                    {tab === "upcoming" && (
-                      <button
-                        onClick={() => cancelBooking(b.id)}
-                        className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-unavailable transition-colors"
-                      >
-                        <X className="w-3 h-3" />
-                        Cancelar
-                      </button>
-                    )}
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3 pt-4 border-t border-border/40">
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <CalendarDays className="w-4 h-4 text-primary" />
+                      <span className="font-medium text-foreground">
+                        {format(parseISO(b.date), "EEEE, dd 'de' MMMM", { locale: ptBR })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <Clock className="w-4 h-4 text-primary" />
+                      <span className="font-medium text-foreground">{b.slot.split(' – ')[0]}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <MapPin className="w-4 h-4 text-primary" />
+                      <span className="text-xs">Alagoinhas, Bahia</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-center gap-2 bg-available/5 p-3 rounded-2xl border border-available/10">
+                    <Sparkles className="w-4 h-4 text-available" />
+                    <span className="text-[10px] font-bold text-available uppercase tracking-widest">Agendamento Confirmado</span>
                   </div>
                 </div>
-
-                {/* Rodapé — serviço + valor */}
-                <div className="border-t border-border bg-muted/20 px-4 py-2.5 flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">{b.serviceName}</span>
-                  <span className="text-sm font-bold text-primary">R$ {b.servicePrice},00</span>
-                </div>
-              </div>
+              </motion.div>
             ))}
+
+            <div className="bg-orange-50/50 border border-orange-100 rounded-3xl p-5 flex gap-4 mt-8">
+              <AlertCircle className="w-5 h-5 text-orange-400 shrink-0" />
+              <p className="text-[11px] text-orange-700 leading-relaxed">
+                <strong>Precisa desmarcar?</strong> Por favor, cancele com pelo menos 2h de antecedência para liberar o horário para outra cliente.
+              </p>
+            </div>
           </div>
         )}
       </main>
+
+      <footer className="p-10 text-center flex flex-col items-center gap-1 opacity-20">
+        <p className="text-[9px] text-muted-foreground uppercase tracking-[0.3em] font-bold">
+          Quartzus
+        </p>
+        <p className="text-[8px] text-muted-foreground uppercase tracking-[0.2em]">
+          © {new Date().getFullYear()} Beleza & Estilo
+        </p>
+      </footer>
     </div>
   );
 };
