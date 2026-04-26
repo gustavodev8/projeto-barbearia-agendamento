@@ -112,13 +112,15 @@ const AdminPage = () => {
   }), [bookings, searchTerm, filterStatus, dateRange, todayStr]);
 
   const stats = useMemo(() => {
-    const today     = bookings.filter(b => b.date === todayStr);
-    const completed = today.filter(b => b.status === "concluido");
+    const today           = bookings.filter(b => b.date === todayStr);
+    const globalCompleted = bookings.filter(b => b.status === "concluido");
+    const globalPending   = bookings.filter(b => b.status === "confirmado");
+
     return {
-      revenue:        completed.reduce((acc, b) => acc + b.servicePrice, 0),
-      totalToday:     today.length,
-      completedCount: completed.length,
-      pendingToday:   today.filter(b => b.status === "confirmado").length,
+      globalRevenue: globalCompleted.reduce((acc, b) => acc + b.servicePrice, 0),
+      globalPending: globalPending.length,
+      totalToday:    today.length,
+      pendingToday:  today.filter(b => b.status === "confirmado").length,
     };
   }, [bookings, todayStr]);
 
@@ -216,82 +218,93 @@ const AdminPage = () => {
       </header>
 
       {/* ── Main ── */}
-      <main className="w-full flex-1 px-4 py-5 max-w-lg mx-auto space-y-5 pb-8">
+      <main className="w-full flex-1 px-5 py-6 max-w-lg mx-auto space-y-6 pb-10">
 
         {/* Dashboard */}
         {activeTab === "dashboard" && (
-          <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-400">
-            <div className="space-y-0.5 px-1">
-              <h2 className="text-xl font-black text-slate-900 leading-none">Dashboard</h2>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-400">
+            <div className="space-y-1 px-1">
+              <h2 className="text-2xl font-black text-slate-900 leading-none">Dashboard</h2>
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                 {format(new Date(), "EEEE, dd 'de' MMMM", { locale: ptBR })}
               </p>
             </div>
 
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-3">
               <MetricTile
                 label="Receita Realizada"
-                value={`R$ ${stats.revenue}`}
-                sub={`${stats.completedCount} atendimentos`}
-                icon={<DollarSign className="h-4 w-4" />}
+                value={`R$ ${stats.globalRevenue}`}
+                sub="Total acumulado"
+                icon={<DollarSign className="h-5 w-5" />}
                 color="emerald"
               />
               <MetricTile
                 label="Total de Agenda"
-                value={stats.totalToday.toString()}
-                sub={`${stats.pendingToday} pendentes`}
-                icon={<CalendarDays className="h-4 w-4" />}
+                value={stats.globalPending.toString()}
+                sub="Ainda não concluídos"
+                icon={<CalendarDays className="h-5 w-5" />}
                 color="blue"
               />
               <MetricTile
-                label="Taxa de Ocupação"
-                value={`${stats.totalToday > 0 ? Math.round((stats.completedCount / stats.totalToday) * 100) : 0}%`}
-                sub="Performance"
-                icon={<TrendingUp className="h-4 w-4" />}
+                label="Hoje"
+                value={stats.totalToday.toString()}
+                sub={`${stats.pendingToday} pendentes`}
+                icon={<Users2 className="h-5 w-5" />}
                 color="indigo"
               />
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="flex items-center justify-between px-1">
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
                   Fila de Atendimento
                 </h3>
                 <button
                   onClick={() => setActiveTab("appointments")}
-                  className="text-[10px] font-black text-primary uppercase"
+                  className="text-[11px] font-black text-primary uppercase"
                 >
                   Ver todos
                 </button>
               </div>
 
-              <div className="space-y-2">
-                {bookings.filter(b => b.date === todayStr).slice(0, 5).map(b => (
-                  <div
-                    key={b.id}
-                    className="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="bg-slate-50 h-9 w-9 rounded-lg flex items-center justify-center font-black text-xs text-slate-500 border border-slate-100 flex-shrink-0">
-                        {b.slot.split(":")[0]}h
-                      </div>
-                      <div>
-                        <p className="text-sm font-black leading-none text-slate-900">{b.clientName}</p>
-                        <p className="text-[10px] font-bold text-amber-600 mt-0.5 uppercase tracking-tighter">
-                          Cód: {b.validationCode}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge
-                      className={cn(
-                        "text-[9px] font-black px-2 py-0.5 rounded-md border-none flex-shrink-0",
-                        STATUS_CONFIG[b.status].bg, STATUS_CONFIG[b.status].color
-                      )}
+              <div className="space-y-3">
+                {bookings.filter(b => b.date === todayStr).length > 0 ? (
+                  bookings.filter(b => b.date === todayStr).slice(0, 5).map(b => (
+                    <div
+                      key={b.id}
+                      className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"
                     >
-                      {STATUS_CONFIG[b.status].label}
-                    </Badge>
+                      <div className="flex items-center gap-4">
+                        <div className="bg-slate-50 h-11 w-11 rounded-xl flex items-center justify-center font-black text-sm text-slate-500 border border-slate-100 flex-shrink-0">
+                          {b.slot.split(":")[0]}h
+                        </div>
+                        <div>
+                          <p className="text-[15px] font-black leading-none text-slate-900">{b.clientName}</p>
+                          <p className="text-[11px] font-bold text-amber-600 mt-1 uppercase tracking-tighter">
+                            Cód: {b.validationCode}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge
+                        className={cn(
+                          "text-[10px] font-black px-2.5 py-1 rounded-md border-none flex-shrink-0",
+                          STATUS_CONFIG[b.status].bg, STATUS_CONFIG[b.status].color
+                        )}
+                      >
+                        {STATUS_CONFIG[b.status].label}
+                      </Badge>
+                    </div>
+                  ))
+                ) : (
+                  <div className="bg-white/50 border border-dashed border-slate-200 rounded-2xl py-12 flex flex-col items-center justify-center text-center px-6">
+                    <div className="bg-slate-100 p-4 rounded-full mb-4">
+                      <CalendarIcon className="h-6 w-6 text-slate-400" />
+                    </div>
+                    <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest leading-tight">
+                      Nenhum agendamento<br />para hoje
+                    </p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -299,30 +312,31 @@ const AdminPage = () => {
 
         {/* Agenda */}
         {activeTab === "appointments" && (
-          <div className="space-y-4 animate-in fade-in duration-400">
+          <div className="space-y-5 animate-in fade-in duration-400">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-xl font-black text-slate-900">Agenda</h2>
+              <h2 className="text-2xl font-black text-slate-900">Agenda</h2>
               <Button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 variant="ghost"
-                className="h-8 gap-1.5 bg-slate-200 rounded-lg px-3 text-[10px] font-black uppercase text-slate-600 hover:bg-slate-300 hover:text-slate-900"
+                className="h-9 gap-2 bg-slate-200 rounded-xl px-4 text-[11px] font-black uppercase text-slate-600 hover:bg-slate-300 hover:text-slate-900"
               >
-                <SlidersHorizontal className="h-3 w-3" /> Filtros
+                <SlidersHorizontal className="h-4 w-4" /> Filtros
               </Button>
             </div>
 
-            <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <CollapsibleContent className="animate-in slide-in-from-top-2">
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 mb-3">
-                  <Input
-                    placeholder="Buscar por nome ou código…"
-                    className="h-9 bg-slate-50 border-slate-200 rounded-lg text-xs px-3 font-medium text-slate-900 placeholder:text-slate-400"
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                  />
-                  <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-4">
+              <Input
+                placeholder="Buscar por nome ou código…"
+                className="h-12 bg-white border-slate-200 rounded-2xl text-[13px] px-5 font-medium text-slate-900 placeholder:text-slate-400 shadow-sm"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+
+              <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                <CollapsibleContent className="animate-in slide-in-from-top-2 duration-200">
+                  <div className="grid grid-cols-2 gap-3 pb-1">
                     <select
-                      className="h-9 px-3 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-bold outline-none text-slate-700"
+                      className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-[12px] font-bold outline-none text-slate-700 shadow-sm"
                       value={filterStatus}
                       onChange={e => setFilterStatus(e.target.value)}
                     >
@@ -331,7 +345,7 @@ const AdminPage = () => {
                       <option value="concluido">Concluídos</option>
                     </select>
                     <select
-                      className="h-9 px-3 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-bold outline-none text-slate-700"
+                      className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-[12px] font-bold outline-none text-slate-700 shadow-sm"
                       value={dateRange}
                       onChange={e => setDateRange(e.target.value)}
                     >
@@ -339,25 +353,25 @@ const AdminPage = () => {
                       <option value="all">Histórico</option>
                     </select>
                   </div>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               {filteredBookings.map(b => (
-                <div key={b.id} className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3">
-                  <div className="flex justify-between items-start gap-3">
+                <div key={b.id} className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm space-y-4">
+                  <div className="flex justify-between items-start gap-4">
                     <div>
-                      <p className="text-sm font-black tracking-tight text-slate-900">{b.clientName}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{b.serviceName}</span>
+                      <p className="text-[16px] font-black tracking-tight text-slate-900">{b.clientName}</p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{b.serviceName}</span>
                         <span className="text-slate-300">·</span>
-                        <span className="text-[10px] font-bold text-amber-600 uppercase">#{b.validationCode}</span>
+                        <span className="text-[11px] font-bold text-amber-600 uppercase">#{b.validationCode}</span>
                       </div>
                     </div>
                     <Badge
                       className={cn(
-                        "text-[9px] font-black px-2 py-0.5 rounded-md border-none flex-shrink-0",
+                        "text-[10px] font-black px-2.5 py-1 rounded-md border-none flex-shrink-0",
                         STATUS_CONFIG[b.status].bg, STATUS_CONFIG[b.status].color
                       )}
                     >
@@ -365,38 +379,38 @@ const AdminPage = () => {
                     </Badge>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-50">
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                     <div>
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block leading-none">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block leading-none">
                         Horário
                       </span>
-                      <span className="text-base font-black text-slate-900 mt-0.5 block">
+                      <span className="text-lg font-black text-slate-900 mt-1 block">
                         {b.slot.split(":")[0]}h
                       </span>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                       <Button
                         onClick={() => updateBookingStatus(b.id, "concluido")}
-                        className="h-8 px-4 rounded-lg bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider"
+                        className="h-10 px-6 rounded-xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-wider"
                       >
                         Validar
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white">
-                            <MoreVertical className="h-4 w-4 text-slate-400" />
+                          <button className="h-10 w-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm">
+                            <MoreVertical className="h-5 w-5 text-slate-400" />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44 p-1.5 rounded-xl shadow-xl">
+                        <DropdownMenuContent align="end" className="w-48 p-2 rounded-2xl shadow-xl">
                           <DropdownMenuItem
                             onClick={() => updateBookingStatus(b.id, "nao_compareceu")}
-                            className="rounded-lg font-bold py-2 px-3 text-sm cursor-pointer"
+                            className="rounded-xl font-bold py-2.5 px-4 text-sm cursor-pointer"
                           >
                             Ausente
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => updateBookingStatus(b.id, "cancelado")}
-                            className="rounded-lg font-bold py-2 px-3 text-sm text-rose-500 cursor-pointer"
+                            className="rounded-xl font-bold py-2.5 px-4 text-sm text-rose-500 cursor-pointer"
                           >
                             Cancelar
                           </DropdownMenuItem>
@@ -409,6 +423,7 @@ const AdminPage = () => {
             </div>
           </div>
         )}
+
 
         {/* Equipe */}
         {activeTab === "professionals" && (
