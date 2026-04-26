@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   CalendarDays, LayoutDashboard, Instagram,
   MapPin, Phone, Star, ChevronDown, Clock,
+  Gem, ShieldCheck, Timer,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { servicos, profissionais } from "@/data/mockData";
@@ -22,9 +23,9 @@ const REVIEWS = [
 ];
 
 const PILLARS = [
-  { emoji: "✨", title: "Qualidade", desc: "Produtos premium e técnicas avançadas" },
-  { emoji: "🛡️", title: "Higiene", desc: "Protocolos rigorosos de biossegurança" },
-  { emoji: "⏰", title: "Pontualidade", desc: "Atendimento no horário combinado" },
+  { icon: Gem,         title: "Qualidade",    desc: "Produtos premium e técnicas avançadas" },
+  { icon: ShieldCheck, title: "Higiene",      desc: "Protocolos rigorosos de biossegurança" },
+  { icon: Timer,       title: "Pontualidade", desc: "Atendimento no horário combinado" },
 ];
 
 const LandingPage = () => {
@@ -44,7 +45,7 @@ const LandingPage = () => {
     <div className="min-h-screen bg-white font-sans overflow-x-hidden">
 
       {/* ─────────────────────────── HERO ─────────────────────────── */}
-      <section className="relative h-[100svh] min-h-[620px] flex flex-col items-center justify-end overflow-hidden">
+      <section className="relative h-[100svh] min-h-[620px] flex flex-col items-center justify-center overflow-hidden">
         {/* background image */}
         <img
           src="https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&h=1200&fit=crop&q=80"
@@ -65,7 +66,7 @@ const LandingPage = () => {
         </div>
 
         {/* hero text + CTA */}
-        <div className="relative z-10 w-full max-w-sm mx-auto px-7 pb-14 text-center">
+        <div className="relative z-10 w-full max-w-sm mx-auto px-7 text-center mt-16">
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
@@ -185,8 +186,8 @@ const LandingPage = () => {
           <div className="grid grid-cols-3 gap-5">
             {PILLARS.map((p, i) => (
               <motion.div key={i} {...fadeUp(i * 0.1)} className="text-center">
-                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
-                  {p.emoji}
+                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <p.icon className="w-5 h-5 text-primary" />
                 </div>
                 <p className="font-black text-[11px] text-slate-900">{p.title}</p>
                 <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">{p.desc}</p>
