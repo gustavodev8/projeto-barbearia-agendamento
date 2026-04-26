@@ -29,6 +29,7 @@ CREATE TABLE bookings (
   date DATE NOT NULL,
   slot TEXT NOT NULL,
   validation_code TEXT NOT NULL,
+  status TEXT DEFAULT 'confirmado',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
