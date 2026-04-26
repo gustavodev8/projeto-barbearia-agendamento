@@ -436,10 +436,10 @@ const AdminPage = () => {
                     <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", STATUS_CONFIG[b.status].bg.replace("bg-", "bg-").replace("100", "500"))} />
 
                     <div className="flex items-stretch p-4 gap-4">
-                      {/* Horário */}
-                      <div className="flex flex-col items-center justify-center border-r border-slate-50 pr-4 min-w-[70px]">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
-                          Início
+                      {/* Horário e Data */}
+                      <div className="flex flex-col items-center justify-center border-r border-slate-50 pr-4 min-w-[80px]">
+                        <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none mb-1.5">
+                          {format(new Date(b.date + "T12:00:00"), "dd MMM", { locale: ptBR })}
                         </span>
                         <span className="text-xl font-black text-slate-900 leading-none">
                           {b.slot}
