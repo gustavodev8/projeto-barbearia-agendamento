@@ -118,9 +118,9 @@ const AdminPage = () => {
   }, [bookings, todayStr]);
 
   return (
-    <div className="flex min-h-screen bg-[#0F172A]">
+    <div className="flex flex-col min-h-screen w-full bg-[#0F172A]">
 
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-100 px-6 py-5 flex items-center justify-between shadow-sm">
+      <header className="sticky top-0 z-50 bg-white border-b border-slate-100 px-6 py-5 flex items-center justify-between shadow-sm w-full">
         <div className="flex items-center gap-3">
           <div className="bg-slate-900 p-2 rounded-xl">
             <Sparkles className="h-5 w-5 text-primary fill-current" />
@@ -137,11 +137,11 @@ const AdminPage = () => {
         </div>
       </header>
 
-      <main className="px-6 py-8 max-w-lg mx-auto space-y-10">
+      <main className="w-full flex-1 px-6 py-8 max-w-lg mx-auto space-y-10 pb-36">
         {activeTab === "dashboard" && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="space-y-1">
-              <h2 className="text-3xl font-black text-slate-900 leading-none">Dashboard</h2>
+              <h2 className="text-3xl font-black text-white leading-none">Dashboard</h2>
               <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{format(new Date(), "EEEE, dd 'de' MMMM", { locale: ptBR })}</p>
             </div>
 
@@ -182,7 +182,7 @@ const AdminPage = () => {
         {activeTab === "appointments" && (
           <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-black text-slate-900">Agenda</h2>
+              <h2 className="text-3xl font-black text-white">Agenda</h2>
               <Button onClick={() => setIsFilterOpen(!isFilterOpen)} variant="ghost" className="h-10 gap-2 bg-slate-100 rounded-xl px-4 text-xs font-black uppercase">
                 <SlidersHorizontal className="h-4 w-4" /> Filtros
               </Button>
@@ -256,7 +256,7 @@ const AdminPage = () => {
              <div className="bg-white h-16 w-16 rounded-[24px] shadow-xl flex items-center justify-center text-slate-200 border border-slate-50 mb-6">
                 <Users2 className="h-8 w-8" />
              </div>
-             <h2 className="text-xl font-black uppercase tracking-tight">Equipe</h2>
+             <h2 className="text-xl font-black uppercase tracking-tight text-white">Equipe</h2>
              <p className="text-sm text-slate-500 font-medium italic mt-2 leading-relaxed">Em breve o painel de gerenciamento de especialistas.</p>
              <Button variant="outline" onClick={() => setActiveTab("dashboard")} className="mt-8 rounded-xl h-12 px-8 font-black text-xs uppercase border-slate-200">Voltar</Button>
            </div>
