@@ -458,13 +458,11 @@ const BookingPage = () => {
                 </div>
               </div>
 
-              {/* Mega Alert Print */}
-              <div className="bg-primary px-6 py-4 flex items-center justify-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                   <Smartphone className="w-5 h-5 text-white" />
-                </div>
-                <p className="text-white font-black text-xs uppercase tracking-tighter leading-tight">
-                  Tire um PRINT agora e mostre <br/> no dia do atendimento!
+              {/* Mega Alert Print - Optimized for Mobile */}
+              <div className="bg-primary px-4 py-3 flex items-center justify-center gap-3">
+                <Smartphone className="w-4 h-4 text-white shrink-0" />
+                <p className="text-white font-black text-[10px] sm:text-xs uppercase tracking-tight leading-tight text-center">
+                  Tire um PRINT desta tela e mostre <br className="hidden sm:block"/> no dia do atendimento!
                 </p>
               </div>
             </div>
