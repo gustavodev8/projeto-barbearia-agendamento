@@ -524,49 +524,48 @@ const AdminPage = () => {
                     key={b.id}
                     onClick={() => setSelectedBooking(b)}
                     className={cn(
-                      "relative bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm transition-all active:scale-[0.99] cursor-pointer",
+                      "relative bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm transition-all active:scale-[0.98] cursor-pointer",
                       b.status === "confirmado" && "ring-1 ring-primary/5"
                     )}
                   >
                     {/* Barra lateral de status */}
                     <div className={cn("absolute left-0 top-0 bottom-0 w-1", STATUS_CONFIG[b.status].bg.replace("100", "400"))} />
 
-                    <div className="pl-4 pr-2 py-3 flex items-center gap-3">
+                    <div className="pl-4 pr-3 py-5 flex items-center gap-3 sm:gap-4">
 
-                      {/* Data + hora */}
-                      <div className="flex-shrink-0 flex flex-col items-center border-r border-slate-100 pr-3 whitespace-nowrap">
-                        <span className="text-[9px] font-black text-primary uppercase leading-none">
+                      {/* Data + hora - Fixos para não espremer */}
+                      <div className="flex-shrink-0 flex flex-col items-center border-r border-slate-100 pr-3 sm:pr-4 whitespace-nowrap min-w-[75px] sm:min-w-[85px]">
+                        <span className="text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-widest leading-none mb-1.5">
                           {format(new Date(b.date + "T12:00:00"), "dd MMM", { locale: ptBR })}
                         </span>
-                        <span className="text-sm font-black text-slate-900 leading-snug mt-0.5">
+                        <span className="text-lg sm:text-xl font-black text-slate-900 leading-none">
                           {b.slot.split(" - ")[0]}
                         </span>
                       </div>
 
-                      {/* Nome + serviço */}
+                      {/* Nome + serviço - Flexível */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-black text-slate-900 truncate leading-tight">{b.clientName}</p>
-                        <p className="text-[10px] font-semibold text-slate-400 truncate mt-0.5">{b.serviceName}</p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm sm:text-base font-black text-slate-900 truncate leading-tight">
+                            {b.clientName}
+                          </p>
+                          {b.status !== "confirmado" && (
+                            <Badge className={cn("text-[8px] font-black px-1.5 py-0 rounded-md border-none uppercase flex-shrink-0", STATUS_CONFIG[b.status].bg, STATUS_CONFIG[b.status].color)}>
+                              {STATUS_CONFIG[b.status].label}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wide truncate">
+                          {b.serviceName}
+                        </p>
                       </div>
 
-                      {/* Ação + menu */}
-                      <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                        {b.status === "confirmado" ? (
-                          <Button
-                            onClick={() => updateBookingStatus(b.id, "concluido")}
-                            className="h-8 px-3 rounded-lg bg-slate-900 text-white text-[10px] font-black uppercase tracking-wide hover:bg-slate-800 transition-all"
-                          >
-                            Finalizar
-                          </Button>
-                        ) : (
-                          <Badge className={cn("text-[9px] font-black px-2 py-0.5 rounded-md border-none", STATUS_CONFIG[b.status].bg, STATUS_CONFIG[b.status].color)}>
-                            {STATUS_CONFIG[b.status].label}
-                          </Badge>
-                        )}
+                      {/* Ações - Alinhadas à direita */}
+                      <div className="flex flex-col items-end justify-center gap-2 sm:gap-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-300 hover:bg-slate-50 transition-colors">
-                              <MoreVertical className="h-4 w-4" />
+                            <button className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-300 hover:bg-slate-50 active:bg-slate-100 transition-colors">
+                              <MoreVertical className="h-5 w-5" />
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48 p-2 rounded-xl shadow-xl border-slate-100">
@@ -587,11 +586,21 @@ const AdminPage = () => {
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
+
+                        {b.status === "confirmado" && (
+                          <Button
+                            onClick={() => updateBookingStatus(b.id, "concluido")}
+                            className="h-8 sm:h-9 px-3 sm:px-4 rounded-xl bg-slate-900 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all"
+                          >
+                            Finalizar
+                          </Button>
+                        )}
                       </div>
 
                     </div>
                   </div>
                 ))
+
               ) : (
                 <div className="py-20 text-center space-y-4">
                   <div className="bg-slate-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto border border-slate-100">
