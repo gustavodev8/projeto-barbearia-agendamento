@@ -125,13 +125,13 @@ const AdminPage = () => {
   const handleNav = (id: string) => { setActiveTab(id); setSidebarOpen(false); };
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-[#0F172A]">
+    <div className="flex flex-col min-h-screen w-full bg-slate-100">
 
       {/* ── Sidebar drawer ── */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetContent
           side="left"
-          className="p-0 w-64 border-none bg-[#0F172A] [&>button]:text-white/40 [&>button]:hover:text-white/70"
+          className="p-0 w-64 border-none bg-white [&>button]:text-slate-400 [&>button]:hover:text-slate-600"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Menu de navegação</SheetTitle>
@@ -139,16 +139,16 @@ const AdminPage = () => {
 
           <div className="flex flex-col h-full">
             {/* logo */}
-            <div className="px-5 pt-8 pb-6 border-b border-white/[0.07]">
+            <div className="px-5 pt-8 pb-6 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <div className="bg-primary/10 p-2 rounded-xl">
                   <Sparkles className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="font-black text-sm tracking-tight uppercase text-white leading-none">
+                  <p className="font-black text-sm tracking-tight uppercase text-slate-900 leading-none">
                     Beleza & Estilo
                   </p>
-                  <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-widest mt-0.5">
+                  <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mt-0.5">
                     Admin
                   </p>
                 </div>
@@ -165,7 +165,7 @@ const AdminPage = () => {
                     "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-150",
                     activeTab === item.id
                       ? "bg-primary text-white"
-                      : "text-slate-400 hover:bg-white/5 hover:text-white"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                   )}
                 >
                   <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -175,10 +175,10 @@ const AdminPage = () => {
             </nav>
 
             {/* logout */}
-            <div className="px-3 pb-6 pt-4 border-t border-white/[0.07]">
+            <div className="px-3 pb-6 pt-4 border-t border-slate-100">
               <button
                 onClick={() => navigate("/")}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 transition-all duration-150"
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-rose-50 hover:text-rose-500 transition-all duration-150"
               >
                 <LogOut className="h-4 w-4 flex-shrink-0" />
                 Sair
@@ -222,8 +222,8 @@ const AdminPage = () => {
         {activeTab === "dashboard" && (
           <div className="space-y-5 animate-in fade-in slide-in-from-bottom-3 duration-400">
             <div className="space-y-0.5 px-1">
-              <h2 className="text-xl font-black text-white leading-none">Dashboard</h2>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+              <h2 className="text-xl font-black text-slate-900 leading-none">Dashboard</h2>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 {format(new Date(), "EEEE, dd 'de' MMMM", { locale: ptBR })}
               </p>
             </div>
@@ -254,7 +254,7 @@ const AdminPage = () => {
 
             <div className="space-y-3">
               <div className="flex items-center justify-between px-1">
-                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                   Fila de Atendimento
                 </h3>
                 <button
@@ -301,11 +301,11 @@ const AdminPage = () => {
         {activeTab === "appointments" && (
           <div className="space-y-4 animate-in fade-in duration-400">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-xl font-black text-white">Agenda</h2>
+              <h2 className="text-xl font-black text-slate-900">Agenda</h2>
               <Button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 variant="ghost"
-                className="h-8 gap-1.5 bg-white/5 rounded-lg px-3 text-[10px] font-black uppercase text-slate-400 hover:bg-white/10 hover:text-white"
+                className="h-8 gap-1.5 bg-slate-200 rounded-lg px-3 text-[10px] font-black uppercase text-slate-600 hover:bg-slate-300 hover:text-slate-900"
               >
                 <SlidersHorizontal className="h-3 w-3" /> Filtros
               </Button>
@@ -313,30 +313,30 @@ const AdminPage = () => {
 
             <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
               <CollapsibleContent className="animate-in slide-in-from-top-2">
-                <div className="bg-white/5 p-3.5 rounded-xl border border-white/[0.07] space-y-2.5 mb-3">
+                <div className="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 mb-3">
                   <Input
                     placeholder="Buscar por nome ou código…"
-                    className="h-9 bg-white/10 border-none rounded-lg text-xs px-3 font-medium text-white placeholder:text-slate-500"
+                    className="h-9 bg-slate-50 border-slate-200 rounded-lg text-xs px-3 font-medium text-slate-900 placeholder:text-slate-400"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <select
-                      className="h-9 px-3 rounded-lg bg-white/10 border-none text-[11px] font-bold outline-none text-white"
+                      className="h-9 px-3 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-bold outline-none text-slate-700"
                       value={filterStatus}
                       onChange={e => setFilterStatus(e.target.value)}
                     >
-                      <option value="all"       className="bg-slate-900">Status: Todos</option>
-                      <option value="confirmado" className="bg-slate-900">Pendentes</option>
-                      <option value="concluido"  className="bg-slate-900">Concluídos</option>
+                      <option value="all">Status: Todos</option>
+                      <option value="confirmado">Pendentes</option>
+                      <option value="concluido">Concluídos</option>
                     </select>
                     <select
-                      className="h-9 px-3 rounded-lg bg-white/10 border-none text-[11px] font-bold outline-none text-white"
+                      className="h-9 px-3 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-bold outline-none text-slate-700"
                       value={dateRange}
                       onChange={e => setDateRange(e.target.value)}
                     >
-                      <option value="today" className="bg-slate-900">Apenas Hoje</option>
-                      <option value="all"   className="bg-slate-900">Histórico</option>
+                      <option value="today">Apenas Hoje</option>
+                      <option value="all">Histórico</option>
                     </select>
                   </div>
                 </div>
@@ -413,17 +413,17 @@ const AdminPage = () => {
         {/* Equipe */}
         {activeTab === "professionals" && (
           <div className="flex flex-col items-center justify-center min-h-[380px] text-center px-8 animate-in zoom-in duration-300">
-            <div className="bg-white/5 h-12 w-12 rounded-2xl flex items-center justify-center text-slate-500 border border-white/10 mb-4">
+            <div className="bg-slate-100 h-12 w-12 rounded-2xl flex items-center justify-center text-slate-400 border border-slate-200 mb-4">
               <Users2 className="h-6 w-6" />
             </div>
-            <h2 className="text-base font-black uppercase tracking-tight text-white">Equipe</h2>
-            <p className="text-xs text-slate-500 font-medium italic mt-1.5 leading-relaxed">
+            <h2 className="text-base font-black uppercase tracking-tight text-slate-900">Equipe</h2>
+            <p className="text-xs text-slate-400 font-medium italic mt-1.5 leading-relaxed">
               Em breve o painel de gerenciamento de especialistas.
             </p>
             <Button
               variant="outline"
               onClick={() => setActiveTab("dashboard")}
-              className="mt-6 rounded-xl h-9 px-6 font-black text-xs uppercase border-white/10 text-white hover:bg-white/5"
+              className="mt-6 rounded-xl h-9 px-6 font-black text-xs uppercase border-slate-200 text-slate-700 hover:bg-slate-50"
             >
               Voltar
             </Button>
