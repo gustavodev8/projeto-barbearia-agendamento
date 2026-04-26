@@ -57,13 +57,6 @@ const MyReservations = () => {
                       <h3 className="font-extrabold text-lg text-foreground">{b.serviceName}</h3>
                       <p className="text-xs font-bold text-primary uppercase tracking-widest mt-0.5">{b.professionalName}</p>
                     </div>
-                    <button 
-                      onClick={() => cancelBooking(b.id)}
-                      className="p-2 text-muted-foreground hover:text-destructive transition-colors"
-                      title="Cancelar"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
                   </div>
 
                   <div className="space-y-3 pt-4 border-t border-border/40">
@@ -87,7 +80,7 @@ const MyReservations = () => {
                   </div>
 
                   <a 
-                    href={`https://wa.me/5575999999999?text=${encodeURIComponent(`Olá, gostaria de falar sobre meu agendamento:\n\nServiço: ${b.serviceName}\nData: ${b.date}\nCódigo: ${b.validationCode}`)}`}
+                    href={`https://wa.me/5575999999999?text=${encodeURIComponent(`Olá! Sou ${b.clientName}, gostaria de solicitar o cancelamento ou reagendamento do meu atendimento.\n\nSeguem os detalhes:\n• Serviço: ${b.serviceName}\n• Data: ${format(parseISO(b.date), "dd/MM/yy")} às ${b.slot.split(' – ')[0]}\n• Código: ${b.validationCode}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-3 w-full py-3 rounded-2xl border border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all"
