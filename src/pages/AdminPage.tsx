@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { format, addDays, startOfWeek, endOfWeek } from "date-fns";
+import { format, addDays, startOfWeek, endOfWeek, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
@@ -8,6 +8,7 @@ import {
   Sparkles, CalendarDays, TrendingUp, DollarSign,
   LayoutDashboard, Users2, Calendar as CalendarIcon,
   MoreVertical, RefreshCw, LogOut, Menu, SlidersHorizontal,
+  User, Scissors, Clock, CalendarCheck, CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,8 +52,9 @@ const AdminPage = () => {
   const [bookings, setBookings]       = useState<AdminBooking[]>([]);
   const [loading, setLoading]         = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen]     = useState(false);
+  const [isFilterOpen, setIsFilterOpen]   = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<AdminBooking | null>(null);
 
   const [searchTerm,    setSearchTerm]    = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -226,6 +228,99 @@ const AdminPage = () => {
               </button>
             </div>
           </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* ── Detalhe do agendamento ── */}
+      <Sheet open={!!selectedBooking} onOpenChange={open => { if (!open) setSelectedBooking(null); }}>
+        <SheetContent
+          side="bottom"
+          className="p-0 rounded-t-3xl border-none bg-white max-h-[85vh] overflow-y-auto [&>button]:top-4 [&>button]:right-4 [&>button]:text-slate-400"
+        >
+          {selectedBooking && (
+            <>
+              <SheetHeader className="sr-only">
+                <SheetTitle>Detalhes do agendamento</SheetTitle>
+              </SheetHeader>
+
+              {/* drag handle */}
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 rounded-full bg-slate-200" />
+              </div>
+
+              {/* cabeçalho */}
+              <div className="px-6 pt-4 pb-5 border-b border-slate-100">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Cliente</p>
+                    <h3 className="text-xl font-black text-slate-900 leading-tight">{selectedBooking.clientName}</h3>
+                  </div>
+                  <Badge className={cn(
+                    "text-[10px] font-black px-2.5 py-1 rounded-lg border-none mt-1 flex-shrink-0",
+                    STATUS_CONFIG[selectedBooking.status].bg,
+                    STATUS_CONFIG[selectedBooking.status].color
+                  )}>
+                    {STATUS_CONFIG[selectedBooking.status].label}
+                  </Badge>
+                </div>
+
+                {/* código */}
+                <div className="inline-flex items-center bg-slate-50 rounded-lg px-3 py-1.5 border border-slate-100 mt-3">
+                  <span className="text-[9px] font-black text-slate-400 uppercase mr-2 tracking-tighter">Check-in:</span>
+                  <span className="text-[13px] font-black text-primary tracking-widest">{selectedBooking.validationCode}</span>
+                </div>
+              </div>
+
+              {/* detalhes */}
+              <div className="px-6 py-5 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <DetailRow icon={<CalendarCheck className="h-4 w-4" />} label="Data" value={format(parseISO(selectedBooking.date), "dd 'de' MMMM", { locale: ptBR })} />
+                  <DetailRow icon={<Clock className="h-4 w-4" />} label="Horário" value={selectedBooking.slot} />
+                </div>
+
+                <div className="h-px bg-slate-100" />
+
+                <DetailRow icon={<User className="h-4 w-4" />} label="Profissional" value={selectedBooking.professionalName} />
+                <DetailRow icon={<Scissors className="h-4 w-4" />} label="Serviço" value={selectedBooking.serviceName} />
+                <DetailRow
+                  icon={<DollarSign className="h-4 w-4" />}
+                  label="Valor"
+                  value={`R$ ${selectedBooking.servicePrice.toFixed(2).replace(".", ",")}`}
+                />
+                <DetailRow
+                  icon={<CreditCard className="h-4 w-4" />}
+                  label="Pagamento"
+                  value="Não informado"
+                  muted
+                />
+
+                <div className="h-px bg-slate-100" />
+
+                <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-widest">
+                  Agendado em {format(parseISO(selectedBooking.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                </p>
+              </div>
+
+              {/* ações */}
+              {selectedBooking.status === "confirmado" && (
+                <div className="px-6 pb-8 pt-1 flex gap-3">
+                  <Button
+                    onClick={() => { updateBookingStatus(selectedBooking.id, "concluido"); setSelectedBooking(null); }}
+                    className="flex-1 h-11 rounded-xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-wider"
+                  >
+                    Finalizar atendimento
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => { updateBookingStatus(selectedBooking.id, "nao_compareceu"); setSelectedBooking(null); }}
+                    className="h-11 px-4 rounded-xl border-slate-200 text-slate-600 text-[11px] font-black uppercase"
+                  >
+                    Ausente
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
         </SheetContent>
       </Sheet>
 
@@ -427,8 +522,9 @@ const AdminPage = () => {
                 filteredBookings.map(b => (
                   <div
                     key={b.id}
+                    onClick={() => setSelectedBooking(b)}
                     className={cn(
-                      "relative bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm transition-all active:scale-[0.99]",
+                      "relative bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm transition-all active:scale-[0.99] cursor-pointer",
                       b.status === "confirmado" && "ring-1 ring-primary/5"
                     )}
                   >
@@ -478,7 +574,7 @@ const AdminPage = () => {
                       </div>
 
                       {/* Ações */}
-                      <div className="flex flex-col justify-between items-end gap-2">
+                      <div className="flex flex-col justify-between items-end gap-2" onClick={e => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-300 transition-colors">
@@ -578,5 +674,19 @@ const MetricTile = ({ label, value, sub, icon, color }: {
     </div>
   );
 };
+
+const DetailRow = ({ icon, label, value, muted }: {
+  icon: React.ReactNode; label: string; value: string; muted?: boolean;
+}) => (
+  <div className="flex items-center gap-3">
+    <div className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
+      {icon}
+    </div>
+    <div className="min-w-0">
+      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">{label}</p>
+      <p className={cn("text-sm font-black leading-tight", muted ? "text-slate-300" : "text-slate-900")}>{value}</p>
+    </div>
+  </div>
+);
 
 export default AdminPage;
