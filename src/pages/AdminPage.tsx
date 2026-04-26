@@ -531,87 +531,64 @@ const AdminPage = () => {
                     {/* Barra lateral de status */}
                     <div className={cn("absolute left-0 top-0 bottom-0 w-1", STATUS_CONFIG[b.status].bg.replace("100", "400"))} />
 
-                    <div className="pl-4 pr-3 pt-3.5 pb-3.5">
+                    <div className="pl-4 pr-2 py-3 flex items-center gap-3">
 
-                      {/* Linha principal */}
-                      <div className="flex items-start gap-3">
-
-                        {/* Data + hora */}
-                        <div className="flex-shrink-0 flex flex-col items-center border-r border-slate-100 pr-3 min-w-[44px]">
-                          <span className="text-[9px] font-black text-primary uppercase tracking-widest leading-none">
-                            {format(new Date(b.date + "T12:00:00"), "dd MMM", { locale: ptBR })}
-                          </span>
-                          <span className="text-sm font-black text-slate-800 leading-snug mt-0.5">
-                            {b.slot}
-                          </span>
-                        </div>
-
-                        {/* Nome + serviço */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-black text-slate-900 truncate leading-tight">
-                            {b.clientName}
-                          </p>
-                          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide truncate mt-0.5">
-                            {b.serviceName}
-                          </p>
-                        </div>
-
-                        {/* Menu — stopPropagation só aqui */}
-                        <div className="flex-shrink-0 -mt-1" onClick={e => e.stopPropagation()}>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <button className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-300 hover:bg-slate-50 transition-colors">
-                                <MoreVertical className="h-4 w-4" />
-                              </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 p-2 rounded-xl shadow-xl border-slate-100">
-                              <DropdownMenuItem className="rounded-lg font-bold py-2.5 px-4 text-xs cursor-pointer gap-2">
-                                <RefreshCw className="h-3.5 w-3.5 text-slate-400" /> Reagendar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => updateBookingStatus(b.id, "nao_compareceu")}
-                                className="rounded-lg font-bold py-2.5 px-4 text-xs cursor-pointer"
-                              >
-                                Marcar Ausente
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => updateBookingStatus(b.id, "cancelado")}
-                                className="rounded-lg font-bold py-2.5 px-4 text-xs text-rose-500 cursor-pointer"
-                              >
-                                Cancelar Agendamento
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-
+                      {/* Data + hora */}
+                      <div className="flex-shrink-0 flex flex-col items-center border-r border-slate-100 pr-3 w-[42px]">
+                        <span className="text-[9px] font-black text-primary uppercase tracking-widest leading-none">
+                          {format(new Date(b.date + "T12:00:00"), "dd MMM", { locale: ptBR })}
+                        </span>
+                        <span className="text-sm font-black text-slate-900 leading-snug mt-0.5">
+                          {b.slot}
+                        </span>
                       </div>
 
-                      {/* Linha inferior: check-in + ação */}
-                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-50">
+                      {/* Nome + serviço */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-black text-slate-900 truncate leading-tight">{b.clientName}</p>
+                        <p className="text-[10px] font-semibold text-slate-400 truncate mt-0.5">{b.serviceName}</p>
+                      </div>
 
-                        {/* Código */}
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Check-in:</span>
-                          <span className="text-[11px] font-black text-primary tracking-widest">{b.validationCode}</span>
-                        </div>
-
-                        {/* Botão Finalizar — stopPropagation só no botão */}
-                        {b.status === "confirmado" && (
+                      {/* Ação + menu */}
+                      <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                        {b.status === "confirmado" ? (
                           <Button
-                            onClick={e => { e.stopPropagation(); updateBookingStatus(b.id, "concluido"); }}
-                            className="h-8 px-4 rounded-lg bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider hover:bg-slate-800 transition-all"
+                            onClick={() => updateBookingStatus(b.id, "concluido")}
+                            className="h-8 px-3 rounded-lg bg-slate-900 text-white text-[10px] font-black uppercase tracking-wide hover:bg-slate-800 transition-all"
                           >
                             Finalizar
                           </Button>
-                        )}
-
-                        {b.status !== "confirmado" && (
+                        ) : (
                           <Badge className={cn("text-[9px] font-black px-2 py-0.5 rounded-md border-none", STATUS_CONFIG[b.status].bg, STATUS_CONFIG[b.status].color)}>
                             {STATUS_CONFIG[b.status].label}
                           </Badge>
                         )}
-
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-300 hover:bg-slate-50 transition-colors">
+                              <MoreVertical className="h-4 w-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48 p-2 rounded-xl shadow-xl border-slate-100">
+                            <DropdownMenuItem className="rounded-lg font-bold py-2.5 px-4 text-xs cursor-pointer gap-2">
+                              <RefreshCw className="h-3.5 w-3.5 text-slate-400" /> Reagendar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => updateBookingStatus(b.id, "nao_compareceu")}
+                              className="rounded-lg font-bold py-2.5 px-4 text-xs cursor-pointer"
+                            >
+                              Marcar Ausente
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => updateBookingStatus(b.id, "cancelado")}
+                              className="rounded-lg font-bold py-2.5 px-4 text-xs text-rose-500 cursor-pointer"
+                            >
+                              Cancelar Agendamento
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
+
                     </div>
                   </div>
                 ))
