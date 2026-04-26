@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "@/components/Header";
-import { barbeiros, servicos, timeSlots } from "@/data/mockData";
+import { profissionais, servicos, timeSlots } from "@/data/mockData";
 import { useReservations } from "@/contexts/ReservationContext";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
   Clock,
   User,
   CreditCard,
-  Scissors,
+  Sparkles,
   Smartphone,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -51,7 +51,7 @@ const BookingPage = () => {
   const navigate = useNavigate();
   const { bookings, addBooking } = useReservations();
 
-  const barber = barbeiros.find((b) => b.id === id);
+  const professional = profissionais.find((p) => p.id === id);
 
   const [step, setStep] = useState(1);
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -64,21 +64,21 @@ const BookingPage = () => {
   const selectedService = servicos.find((s) => s.id === selectedServiceId);
 
   const occupiedSlots = useMemo(() => {
-    if (!date || !barber) return new Set<string>();
+    if (!date || !professional) return new Set<string>();
     const dateStr = format(date, "yyyy-MM-dd");
     return new Set(
       bookings
-        .filter((b) => b.barberId === barber.id && b.date === dateStr)
+        .filter((b) => b.professionalId === professional.id && b.date === dateStr)
         .map((b) => b.slot)
     );
-  }, [date, barber, bookings]);
+  }, [date, professional, bookings]);
 
   const handleConfirm = () => {
-    if (!barber || !date || !selectedSlot || !selectedService || !clientName.trim()) return;
+    if (!professional || !date || !selectedSlot || !selectedService || !clientName.trim()) return;
     addBooking({
       id: `b-${Date.now()}`,
-      barberId: barber.id,
-      barberName: barber.name,
+      professionalId: professional.id,
+      professionalName: professional.name,
       serviceId: selectedService.id,
       serviceName: selectedService.name,
       servicePrice: selectedService.price,
@@ -89,11 +89,11 @@ const BookingPage = () => {
     setShowSuccess(true);
   };
 
-  if (!barber) {
+  if (!professional) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <p className="text-center mt-12 text-muted-foreground">Barbeiro não encontrado.</p>
+        <p className="text-center mt-12 text-muted-foreground">Profissional não encontrada.</p>
       </div>
     );
   }
@@ -105,23 +105,23 @@ const BookingPage = () => {
 
         {/* Voltar */}
         <button
-          onClick={() => (step === 1 ? navigate("/") : setStep((s) => s - 1))}
+          onClick={() => (step === 1 ? navigate("/profissionais") : setStep((s) => s - 1))}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          {step === 1 ? "Trocar barbeiro" : "Voltar"}
+          {step === 1 ? "Trocar profissional" : "Voltar"}
         </button>
 
-        {/* Card do barbeiro */}
+        {/* Card do profissional */}
         <div className="flex items-center gap-3 bg-card border border-border rounded-md px-4 py-3 mb-6">
           <img
-            src={barber.image}
-            alt={barber.name}
+            src={professional.image}
+            alt={professional.name}
             className="w-11 h-11 rounded-full object-cover shrink-0 ring-2 ring-primary/20"
           />
           <div className="min-w-0">
-            <p className="font-semibold text-foreground text-sm leading-tight">{barber.name}</p>
-            <p className="text-xs text-muted-foreground mt-0.5 truncate">{barber.description}</p>
+            <p className="font-semibold text-foreground text-sm leading-tight">{professional.name}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{professional.description}</p>
           </div>
           <span className="ml-auto text-[10px] font-medium text-muted-foreground shrink-0">
             Etapa {step} de {steps.length}
@@ -339,7 +339,7 @@ const BookingPage = () => {
               </p>
               <div className="space-y-2">
                 {[
-                  { label: "Barbeiro", value: barber.name },
+                  { label: "Profissional", value: professional.name },
                   { label: "Data", value: date ? format(date, "dd/MM/yyyy") : "" },
                   { label: "Horário", value: selectedSlot },
                   { label: "Serviço", value: selectedService?.name ?? "" },
@@ -425,7 +425,7 @@ const BookingPage = () => {
               <div className="text-left w-full mt-4 space-y-2">
                 {[
                   { label: "Cliente", value: clientName },
-                  { label: "Barbeiro", value: barber.name },
+                  { label: "Profissional", value: professional.name },
                   { label: "Serviço", value: selectedService?.name ?? "" },
                   { label: "Data", value: date ? format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : "" },
                   { label: "Horário", value: selectedSlot },

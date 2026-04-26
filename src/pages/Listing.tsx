@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "@/components/Header";
-import { barbeiros, servicos, ReservableItem } from "@/data/mockData";
+import { profissionais, servicos, ReservableItem } from "@/data/mockData";
 import { ArrowLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,9 +11,9 @@ const Listing = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
-  const isBarbeiros = category === "barbeiros";
-  const items: ReservableItem[] = isBarbeiros ? barbeiros : servicos;
-  const title = isBarbeiros ? "Barbeiros" : "Serviços";
+  const isProfissionais = category === "profissionais";
+  const items: ReservableItem[] = isProfissionais ? profissionais : servicos;
+  const title = isProfissionais ? "Profissionais" : "Serviços";
 
   const filtered = items.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())

@@ -1,23 +1,24 @@
-export interface Barber {
+export interface ReservableItem {
   id: string;
   name: string;
   description: string;
   image: string;
   available: boolean;
+  totalUnits?: number;
 }
 
-export interface Service {
-  id: string;
-  name: string;
-  description: string;
+export interface Professional extends ReservableItem {
+}
+
+export interface Service extends ReservableItem {
   price: number;
   durationMinutes: number;
 }
 
 export interface Booking {
   id: string;
-  barberId: string;
-  barberName: string;
+  professionalId: string;
+  professionalName: string;
   serviceId: string;
   serviceName: string;
   servicePrice: number;
@@ -32,33 +33,33 @@ export interface TimeSlot {
   end: string;
 }
 
-export const barbeiros: Barber[] = [
+export const profissionais: Professional[] = [
   {
-    id: "b1",
-    name: "Carlos Silva",
-    description: "Especialista em cortes clássicos e degradê. Mais de 10 anos de experiência com técnicas tradicionais e modernas.",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=300&fit=crop&crop=face",
+    id: "p1",
+    name: "Ana Oliveira",
+    description: "Especialista em Nails Art e alongamentos em fibra de vidro. Mais de 8 anos transformando sorrisos através das mãos.",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=300&fit=crop&crop=face",
     available: true,
   },
   {
-    id: "b2",
-    name: "Rafael Mendes",
-    description: "Expert em cortes modernos, pigmentação e tratamentos capilares. Referência em estilos urbanos.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&crop=face",
+    id: "p2",
+    name: "Beatriz Costa",
+    description: "Expert em design de sobrancelhas e micropigmentação. Especialista em realçar o olhar de forma natural.",
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=300&fit=crop&crop=face",
     available: true,
   },
   {
-    id: "b3",
-    name: "Diego Santos",
-    description: "Mestre em navalhação e modelagem de barba. Atendimento VIP com produtos premium importados.",
-    image: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&h=300&fit=crop&crop=face",
+    id: "p3",
+    name: "Carla Mendes",
+    description: "Manicure e Pedicure tradicional com foco em saúde das unhas e acabamento impecável com produtos premium.",
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=300&fit=crop&crop=face",
     available: true,
   },
   {
-    id: "b4",
-    name: "Lucas Ferreira",
-    description: "Especialista em cabelos cacheados e crespos. Técnicas exclusivas de hidratação e finalização.",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=300&fit=crop&crop=face",
+    id: "p4",
+    name: "Juliana Silva",
+    description: "Especialista em depilação e estética facial. Técnicas exclusivas para o seu bem-estar e cuidado.",
+    image: "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=400&h=300&fit=crop&crop=face",
     available: true,
   },
 ];
@@ -66,38 +67,57 @@ export const barbeiros: Barber[] = [
 export const servicos: Service[] = [
   {
     id: "s1",
-    name: "Corte Clássico",
-    description: "Corte tradicional com tesoura e máquina, acabamento perfeito com navalha.",
+    name: "Manicure Simples",
+    description: "Corte, lixação, remoção de cutícula e esmaltação tradicional.",
     price: 35,
-    durationMinutes: 30,
+    durationMinutes: 45,
+    image: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=400&h=300&fit=crop",
+    available: true,
   },
   {
     id: "s2",
-    name: "Barba",
-    description: "Aparação, modelagem e hidratação de barba com navalha e produtos premium.",
-    price: 25,
-    durationMinutes: 30,
+    name: "Pedicure Simples",
+    description: "Cuidado completo com os pés, esfoliação e esmaltação.",
+    price: 45,
+    durationMinutes: 45,
+    image: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=400&h=300&fit=crop",
+    available: true,
   },
   {
     id: "s3",
-    name: "Combo (Corte + Barba)",
-    description: "Serviço completo de corte e barba com acabamento profissional.",
-    price: 55,
-    durationMinutes: 60,
+    name: "Combo (Mão + Pé)",
+    description: "Serviço completo de manicure e pedicure com desconto especial.",
+    price: 70,
+    durationMinutes: 90,
+    image: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=400&h=300&fit=crop",
+    available: true,
   },
   {
     id: "s4",
-    name: "Degradê",
-    description: "Corte em degradê com transição suave, finalizado com gel ou pomada.",
+    name: "Design de Sobrancelha",
+    description: "Mapeamento facial e design personalizado para o seu rosto.",
     price: 40,
     durationMinutes: 30,
+    image: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop",
+    available: true,
   },
   {
     id: "s5",
-    name: "Hidratação Capilar",
-    description: "Tratamento profundo com máscara hidratante e finalização com secador.",
-    price: 30,
-    durationMinutes: 30,
+    name: "Design com Henna",
+    description: "Design de sobrancelha finalizado com aplicação de henna para maior definição.",
+    price: 60,
+    durationMinutes: 45,
+    image: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop",
+    available: true,
+  },
+  {
+    id: "s6",
+    name: "Alongamento em Fibra",
+    description: "Técnica de alongamento de unhas resistente e com aspecto natural.",
+    price: 150,
+    durationMinutes: 120,
+    image: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=400&h=300&fit=crop",
+    available: true,
   },
 ];
 

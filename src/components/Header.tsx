@@ -1,4 +1,4 @@
-import { CalendarDays, LayoutDashboard, Scissors } from "lucide-react";
+import { CalendarDays, LayoutDashboard, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
@@ -11,9 +11,9 @@ const Header = () => {
         className="flex items-center gap-2 font-sans font-bold text-lg text-foreground tracking-tight"
       >
         <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-          <Scissors className="w-4 h-4 text-primary-foreground" />
+          <Sparkles className="w-4 h-4 text-primary-foreground" />
         </div>
-        Barber Time
+        Beleza & Estilo
       </button>
 
       <div className="flex items-center gap-4">

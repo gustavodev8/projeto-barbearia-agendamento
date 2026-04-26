@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import {
-  Scissors, CalendarDays, TrendingUp, Users, DollarSign,
+  Sparkles, CalendarDays, TrendingUp, Users, DollarSign,
   ArrowLeft, Star, Clock, AlertTriangle, UserX, ShieldAlert,
   X, UserCheck, Timer, CheckCircle2,
 } from "lucide-react";
@@ -17,34 +17,34 @@ type BookingStatus = "concluido" | "confirmado" | "cancelado" | "reagendamento" 
 
 interface AdminBooking {
   id: string; slot: string; clientName: string;
-  barberId: string; barberName: string;
+  professionalId: string; professionalName: string;
   serviceName: string; servicePrice: number;
   status: BookingStatus;
 }
 
-interface BarberInfo {
+interface ProfessionalInfo {
   id: string; name: string; bookings: number; revenue: number;
 }
 
 // ─── Mock ─────────────────────────────────────────────────────────────────────
 
 const TODAY_MOCK: AdminBooking[] = [
-  { id: "m1", slot: "09:00 – 09:30", clientName: "João Pereira",   barberId: "b1", barberName: "Carlos Silva",   serviceName: "Degradê",              servicePrice: 40, status: "concluido"  },
-  { id: "m2", slot: "09:30 – 10:00", clientName: "Lucas Oliveira", barberId: "b2", barberName: "Rafael Mendes",  serviceName: "Corte Clássico",       servicePrice: 35, status: "concluido"  },
-  { id: "m3", slot: "10:00 – 10:30", clientName: "Pedro Costa",    barberId: "b3", barberName: "Diego Santos",   serviceName: "Barba",                servicePrice: 25, status: "concluido"  },
-  { id: "m4", slot: "10:30 – 11:00", clientName: "Marcos Lima",    barberId: "b4", barberName: "Lucas Ferreira", serviceName: "Combo (Corte + Barba)", servicePrice: 55, status: "concluido"  },
-  { id: "m5", slot: "11:00 – 11:30", clientName: "André Santos",   barberId: "b1", barberName: "Carlos Silva",   serviceName: "Hidratação Capilar",   servicePrice: 30, status: "concluido"  },
-  { id: "m6", slot: "14:00 – 14:30", clientName: "Felipe Torres",  barberId: "b2", barberName: "Rafael Mendes",  serviceName: "Degradê",              servicePrice: 40, status: "confirmado" },
-  { id: "m7", slot: "14:30 – 15:00", clientName: "Gabriel Rocha",  barberId: "b3", barberName: "Diego Santos",   serviceName: "Corte Clássico",       servicePrice: 35, status: "confirmado" },
-  { id: "m8", slot: "15:00 – 15:30", clientName: "Rodrigo Alves",  barberId: "b4", barberName: "Lucas Ferreira", serviceName: "Barba",                servicePrice: 25, status: "confirmado" },
-  { id: "m9", slot: "16:00 – 16:30", clientName: "Bruno Martins",  barberId: "b1", barberName: "Carlos Silva",   serviceName: "Combo (Corte + Barba)", servicePrice: 55, status: "confirmado" },
+  { id: "m1", slot: "09:00 – 09:30", clientName: "Mariana Silva",   professionalId: "b1", professionalName: "Ana Oliveira",   serviceName: "Manicure Simples",     servicePrice: 35, status: "concluido"  },
+  { id: "m2", slot: "09:30 – 10:00", clientName: "Fernanda Lima",   professionalId: "b2", professionalName: "Beatriz Costa",  serviceName: "Design de Sobrancelha",servicePrice: 40, status: "concluido"  },
+  { id: "m3", slot: "10:00 – 10:30", clientName: "Patrícia Souza",  professionalId: "b3", professionalName: "Carla Mendes",   serviceName: "Pedicure Simples",     servicePrice: 45, status: "concluido"  },
+  { id: "m4", slot: "10:30 – 11:00", clientName: "Cláudia Rocha",   professionalId: "b4", professionalName: "Juliana Silva",  serviceName: "Combo (Mão + Pé)",     servicePrice: 70, status: "concluido"  },
+  { id: "m5", slot: "11:00 – 11:30", clientName: "Renata Oliveira", professionalId: "b1", professionalName: "Ana Oliveira",   serviceName: "Alongamento em Fibra", servicePrice: 150, status: "concluido" },
+  { id: "m6", slot: "14:00 – 14:30", clientName: "Camila Torres",   professionalId: "b2", professionalName: "Beatriz Costa",  serviceName: "Manicure Simples",     servicePrice: 35, status: "confirmado" },
+  { id: "m7", slot: "14:30 – 15:00", clientName: "Amanda Rocha",   professionalId: "b3", professionalName: "Carla Mendes",   serviceName: "Design de Sobrancelha",servicePrice: 40, status: "confirmado" },
+  { id: "m8", slot: "15:00 – 15:30", clientName: "Bruna Alves",    professionalId: "b4", professionalName: "Juliana Silva",  serviceName: "Pedicure Simples",     servicePrice: 45, status: "confirmado" },
+  { id: "m9", slot: "16:00 – 16:30", clientName: "Letícia Martins", professionalId: "b1", professionalName: "Ana Oliveira",   serviceName: "Combo (Mão + Pé)",     servicePrice: 70, status: "confirmado" },
 ];
 
-const BARBERS_MOCK: BarberInfo[] = [
-  { id: "b1", name: "Carlos Silva",   bookings: 3, revenue: 125 },
-  { id: "b2", name: "Rafael Mendes",  bookings: 2, revenue: 75  },
-  { id: "b3", name: "Diego Santos",   bookings: 2, revenue: 60  },
-  { id: "b4", name: "Lucas Ferreira", bookings: 2, revenue: 80  },
+const PROFESSIONALS_MOCK: ProfessionalInfo[] = [
+  { id: "b1", name: "Ana Oliveira",  bookings: 3, revenue: 255 },
+  { id: "b2", name: "Beatriz Costa", bookings: 2, revenue: 75  },
+  { id: "b3", name: "Carla Mendes",  bookings: 2, revenue: 85  },
+  { id: "b4", name: "Juliana Silva", bookings: 2, revenue: 115 },
 ];
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; className: string }> = {
@@ -63,8 +63,8 @@ const AdminPage = () => {
   const navigate = useNavigate();
   const { bookings } = useReservations();
 
-  const [absentBarbers,  setAbsentBarbers]  = useState<Set<string>>(new Set());
-  const [lateBarbers,    setLateBarbers]    = useState<Set<string>>(new Set());
+  const [absentProfessionals,  setAbsentProfessionals]  = useState<Set<string>>(new Set());
+  const [lateProfessionals,    setLateProfessionals]    = useState<Set<string>>(new Set());
   const [overrideStatus, setOverrideStatus] = useState<Record<string, BookingStatus>>({});
   const [emergencyClosed, setEmergencyClosed] = useState(false);
   const [statusFilter, setStatusFilter]     = useState<typeof FILTERS[number]>("todos");
@@ -76,15 +76,15 @@ const AdminPage = () => {
     .filter((b) => b.date === todayStr)
     .map((b) => ({
       id: b.id, slot: b.slot, clientName: b.clientName,
-      barberId: "", barberName: b.barberName,
+      professionalId: b.professionalId, professionalName: b.professionalName,
       serviceName: b.serviceName, servicePrice: b.servicePrice,
       status: "confirmado" as BookingStatus,
     }));
 
   const allToday: AdminBooking[] = [...realToday, ...TODAY_MOCK].map((b) => {
-    if (overrideStatus[b.id])                                           return { ...b, status: overrideStatus[b.id] };
-    if (emergencyClosed)                                                return { ...b, status: "cancelado" };
-    if (absentBarbers.has(b.barberId) && b.status === "confirmado")     return { ...b, status: "reagendamento" };
+    if (overrideStatus[b.id])                                                 return { ...b, status: overrideStatus[b.id] };
+    if (emergencyClosed)                                                      return { ...b, status: "cancelado" };
+    if (absentProfessionals.has(b.professionalId) && b.status === "confirmado")     return { ...b, status: "reagendamento" };
     return b;
   });
 
@@ -96,29 +96,29 @@ const AdminPage = () => {
   const noShowFees      = allToday.filter((b) => b.status === "nao_compareceu").reduce((s, b) => s + Math.round(b.servicePrice * 0.5), 0);
   const revenueRealized = allToday.filter((b) => b.status === "concluido").reduce((s, b) => s + b.servicePrice, 0) + noShowFees;
 
-  const markAbsent = (barber: BarberInfo) => {
-    const affected = allToday.filter((b) => b.barberId === barber.id && b.status === "confirmado").length;
+  const markAbsent = (professional: ProfessionalInfo) => {
+    const affected = allToday.filter((b) => b.professionalId === professional.id && b.status === "confirmado").length;
     setConfirm({
-      title: `Marcar ${barber.name.split(" ")[0]} como ausente`,
-      description: `${barber.name} tem ${affected} agendamento${affected !== 1 ? "s" : ""} pendente${affected !== 1 ? "s" : ""} hoje. Serão sinalizados como "Reagendamento necessário".`,
-      onConfirm: () => setAbsentBarbers((p) => new Set(p).add(barber.id)),
+      title: `Marcar ${professional.name.split(" ")[0]} como ausente`,
+      description: `${professional.name} tem ${affected} agendamento${affected !== 1 ? "s" : ""} pendente${affected !== 1 ? "s" : ""} hoje. Serão sinalizados como "Reagendamento necessário".`,
+      onConfirm: () => setAbsentProfessionals((p) => new Set(p).add(professional.id)),
     });
   };
 
-  const markLate = (barber: BarberInfo) => {
+  const markLate = (professional: ProfessionalInfo) => {
     setConfirm({
-      title: `Registrar atraso — ${barber.name.split(" ")[0]}`,
-      description: `${barber.name} está com atraso. O primeiro horário disponível poderá ser impactado.`,
-      onConfirm: () => setLateBarbers((p) => new Set(p).add(barber.id)),
+      title: `Registrar atraso — ${professional.name.split(" ")[0]}`,
+      description: `${professional.name} está com atraso. O primeiro horário disponível poderá ser impactado.`,
+      onConfirm: () => setLateProfessionals((p) => new Set(p).add(professional.id)),
     });
   };
 
-  const restoreBarber = (id: string) => {
-    setAbsentBarbers((p) => { const s = new Set(p); s.delete(id); return s; });
-    setLateBarbers((p)   => { const s = new Set(p); s.delete(id); return s; });
+  const restoreProfessional = (id: string) => {
+    setAbsentProfessionals((p) => { const s = new Set(p); s.delete(id); return s; });
+    setLateProfessionals((p)   => { const s = new Set(p); s.delete(id); return s; });
     setOverrideStatus((p) => {
       const next = { ...p };
-      TODAY_MOCK.filter((b) => b.barberId === id && b.status === "confirmado").forEach((b) => delete next[b.id]);
+      TODAY_MOCK.filter((b) => b.professionalId === id && b.status === "confirmado").forEach((b) => delete next[b.id]);
       return next;
     });
   };
@@ -135,7 +135,7 @@ const AdminPage = () => {
   const markEmergencyClosed = () => {
     setConfirm({
       title: "Fechamento emergencial",
-      description: "Todos os agendamentos de hoje serão cancelados. Os clientes precisarão ser contatados para reembolso ou reagendamento.",
+      description: "Todos os agendamentos de hoje serão cancelados. As clientes precisarão ser contatadas para reembolso ou reagendamento.",
       onConfirm: () => setEmergencyClosed(true),
     });
   };
@@ -147,10 +147,10 @@ const AdminPage = () => {
       <header className="bg-[hsl(20,30%,10%)] border-b border-white/10 px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 bg-primary flex items-center justify-center shrink-0">
-            <Scissors className="w-4 h-4 text-white" />
+            <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p className="font-bold text-sm text-white leading-tight tracking-wide">Barber Time</p>
+            <p className="font-bold text-sm text-white leading-tight tracking-wide">Beleza & Estilo</p>
             <p className="text-[10px] text-white/40 uppercase tracking-widest leading-tight">Painel Admin</p>
           </div>
         </div>
@@ -189,7 +189,7 @@ const AdminPage = () => {
             <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 px-3 py-2.5">
               <AlertTriangle className="w-4 h-4 text-orange-500 shrink-0" />
               <p className="text-xs text-orange-700 leading-snug">
-                <strong>{needsReschedule} agendamento{needsReschedule > 1 ? "s" : ""}</strong> precisam de reagendamento devido à ausência de barbeiro.
+                <strong>{needsReschedule} agendamento{needsReschedule > 1 ? "s" : ""}</strong> precisam de reagendamento devido à ausência de profissional.
               </p>
             </div>
           )}
@@ -221,22 +221,22 @@ const AdminPage = () => {
                 <MetricCard
                   icon={<TrendingUp className="w-4 h-4" />}
                   label="Receita do mês"
-                  value="R$ 6.840"
-                  sub="↑ 12% vs mês anterior"
+                  value="R$ 8.420"
+                  sub="↑ 15% vs mês anterior"
                 />
                 <MetricCard
                   icon={<Users className="w-4 h-4" />}
                   label="Clientes no mês"
-                  value="52"
-                  sub="Serviço top: Degradê"
+                  value="64"
+                  sub="Serviço top: Manicure"
                 />
               </div>
             </section>
 
-            {/* Barbeiros */}
+            {/* Profissionais */}
             <section>
               <div className="flex items-center justify-between mb-2.5">
-                <SectionLabel className="mb-0">Barbeiros hoje</SectionLabel>
+                <SectionLabel className="mb-0">Profissionais hoje</SectionLabel>
                 <button
                   onClick={markEmergencyClosed}
                   disabled={emergencyClosed}
@@ -248,11 +248,11 @@ const AdminPage = () => {
               </div>
 
               <div className="space-y-2">
-                {BARBERS_MOCK.map((b) => {
-                  const isAbsent = absentBarbers.has(b.id);
-                  const isLate   = lateBarbers.has(b.id);
+                {PROFESSIONALS_MOCK.map((b) => {
+                  const isAbsent = absentProfessionals.has(b.id);
+                  const isLate   = lateProfessionals.has(b.id);
                   const affected = allToday.filter(
-                    (a) => a.barberId === b.id && (a.status === "confirmado" || a.status === "reagendamento")
+                    (a) => a.professionalId === b.id && (a.status === "confirmado" || a.status === "reagendamento")
                   ).length;
 
                   return (
@@ -268,7 +268,7 @@ const AdminPage = () => {
                       <div className="flex items-center justify-between gap-2 mb-2.5">
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div className={cn("w-8 h-8 flex items-center justify-center shrink-0", isAbsent ? "bg-orange-100" : "bg-primary/10")}>
-                            <Scissors className={cn("w-3.5 h-3.5", isAbsent ? "text-orange-500" : "text-primary")} />
+                            <Sparkles className={cn("w-3.5 h-3.5", isAbsent ? "text-orange-500" : "text-primary")} />
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-bold text-foreground leading-tight truncate">{b.name}</p>
@@ -290,7 +290,7 @@ const AdminPage = () => {
                       </div>
                       <div className="flex items-center gap-3 pt-2 border-t border-border/50">
                         {isAbsent ? (
-                          <button onClick={() => restoreBarber(b.id)} className="flex items-center gap-1 text-xs font-semibold text-available hover:opacity-80">
+                          <button onClick={() => restoreProfessional(b.id)} className="flex items-center gap-1 text-xs font-semibold text-available hover:opacity-80">
                             <UserCheck className="w-3.5 h-3.5" /> Marcar como presente
                           </button>
                         ) : (
@@ -300,7 +300,7 @@ const AdminPage = () => {
                             </button>
                             <span className="text-border text-xs">·</span>
                             {isLate ? (
-                              <button onClick={() => setLateBarbers((p) => { const s = new Set(p); s.delete(b.id); return s; })} className="flex items-center gap-1 text-xs font-medium text-yellow-600 hover:opacity-70">
+                              <button onClick={() => setLateProfessionals((p) => { const s = new Set(p); s.delete(b.id); return s; })} className="flex items-center gap-1 text-xs font-medium text-yellow-600 hover:opacity-70">
                                 <CheckCircle2 className="w-3.5 h-3.5" /> Chegou
                               </button>
                             ) : (
@@ -322,11 +322,11 @@ const AdminPage = () => {
               <SectionLabel>Serviços mais pedidos</SectionLabel>
               <div className="border border-border divide-y divide-border overflow-hidden">
                 {[
-                  { name: "Degradê",               count: 18, pct: 100 },
-                  { name: "Corte Clássico",        count: 14, pct: 78  },
-                  { name: "Combo (Corte + Barba)", count: 10, pct: 56  },
-                  { name: "Barba",                 count: 7,  pct: 39  },
-                  { name: "Hidratação Capilar",    count: 3,  pct: 17  },
+                  { name: "Manicure Simples",      count: 22, pct: 100 },
+                  { name: "Design de Sobrancelha", count: 18, pct: 82  },
+                  { name: "Pedicure Simples",      count: 15, pct: 68  },
+                  { name: "Combo (Mão + Pé)",      count: 12, pct: 55  },
+                  { name: "Alongamento em Fibra",  count: 8,  pct: 36  },
                 ].map((svc, i) => (
                   <div key={svc.name} className="flex items-center gap-3 px-3 py-3 bg-card">
                     <span className="text-[11px] font-bold text-muted-foreground/40 w-4 shrink-0 font-mono">{i + 1}</span>
@@ -385,7 +385,7 @@ const AdminPage = () => {
             ) : (
               <div className="space-y-2">
                 {filtered.map((b) => {
-                  const barberLate = lateBarbers.has(b.barberId);
+                  const professionalLate = lateProfessionals.has(b.professionalId);
                   return (
                     <div
                       key={b.id}
@@ -401,7 +401,7 @@ const AdminPage = () => {
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-foreground bg-muted px-1.5 py-0.5">{b.slot}</span>
-                          {barberLate && b.status === "confirmado" && (
+                          {professionalLate && b.status === "confirmado" && (
                             <span className="text-[10px] text-yellow-600 font-semibold">Atraso</span>
                           )}
                         </div>
@@ -413,7 +413,7 @@ const AdminPage = () => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="text-sm font-bold text-foreground leading-tight truncate">{b.clientName}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5 truncate">{b.barberName} · {b.serviceName}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 truncate">{b.professionalName} · {b.serviceName}</p>
                         </div>
                         <div className="text-right shrink-0">
                           <p className="text-sm font-bold text-foreground">

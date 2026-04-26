@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "@/components/Header";
-import { barbeiros, servicos, timeSlots, ReservableItem } from "@/data/mockData";
+import { profissionais, servicos, timeSlots, ReservableItem } from "@/data/mockData";
 import { useReservations } from "@/contexts/ReservationContext";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ const ReservationPage = () => {
   const navigate = useNavigate();
   const { addReservation, reservations } = useReservations();
 
-  const allItems = category === "barbeiros" ? barbeiros : servicos;
+  const allItems = category === "profissionais" ? profissionais : servicos;
   const item: ReservableItem | undefined = allItems.find((i) => i.id === id);
   const isServico = category === "servicos";
 
@@ -66,7 +66,7 @@ const ReservationPage = () => {
   }, [reservedQtyForSlot, isServico, item, date]);
 
   const toggleSlot = (label: string) => {
-    // Para barbeiros: seleção única (um horário por agendamento)
+    // Para profissionais: seleção única (um horário por agendamento)
     if (!isServico) {
       setSelectedSlots((prev) => prev.includes(label) ? [] : [label]);
       return;
@@ -97,7 +97,7 @@ const ReservationPage = () => {
       itemName: item.name,
       date: dateStr,
       slots: selectedSlots,
-      category: category as "barbeiros" | "servicos",
+      category: category as "profissionais" | "servicos",
     });
 
     selectedServicos.forEach((sv, idx) => {
@@ -256,7 +256,7 @@ const ReservationPage = () => {
           </div>
         )}
 
-        {/* Serviços adicionais — apenas para barbeiros */}
+        {/* Serviços adicionais — apenas para profissionais */}
         {!isServico && date && selectedSlots.length > 0 && (
           <div className="bg-card border border-border rounded-lg p-5 mb-6">
             <div className="flex items-center gap-2 mb-1">
@@ -321,7 +321,7 @@ const ReservationPage = () => {
             <CheckCircle2 className="w-12 h-12 text-available mb-2" />
             <DialogTitle className="text-xl">Agendamento confirmado!</DialogTitle>
             <DialogDescription className="text-left space-y-1 mt-3 w-full">
-              <span className="block"><strong>{isServico ? "Serviço" : "Barbeiro"}:</strong> {item.name}</span>
+              <span className="block"><strong>{isServico ? "Serviço" : "Profissional"}:</strong> {item.name}</span>
               <span className="block"><strong>Data:</strong> {date ? format(date, "dd/MM/yyyy") : ""}</span>
               <span className="block"><strong>Horário:</strong> {selectedSlots.join(", ")}</span>
               {!isServico && selectedServicos.length > 0 && (

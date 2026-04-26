@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { useReservations } from "@/contexts/ReservationContext";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CalendarX, Scissors, User, X } from "lucide-react";
+import { ArrowLeft, CalendarX, Sparkles, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MyReservations = () => {
@@ -69,10 +69,10 @@ const MyReservations = () => {
                       <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                       <p className="font-semibold text-foreground text-sm leading-tight">{b.clientName}</p>
                     </div>
-                    {/* Barbeiro */}
+                    {/* Profissional */}
                     <div className="flex items-center gap-2">
-                      <Scissors className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                      <p className="text-sm text-muted-foreground">{b.barberName}</p>
+                      <Sparkles className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                      <p className="text-sm text-muted-foreground">{b.professionalName}</p>
                     </div>
                     {/* Data e horário */}
                     <p className="text-xs text-muted-foreground/70 pl-[1.375rem]">
