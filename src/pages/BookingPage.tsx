@@ -427,64 +427,41 @@ const BookingPage = () => {
       </main>
 
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
-        <DialogContent className="max-w-[90vw] sm:max-w-md rounded-[40px] p-0 border-none overflow-hidden bg-white shadow-2xl">
-          <div className="absolute top-0 left-0 right-0 h-48 bg-primary -z-10" />
-          
-          <div className="px-8 pt-10 pb-8 flex flex-col items-center text-center">
-            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center mb-6 shadow-2xl animate-bounce">
-              <CheckCircle2 className="w-14 h-14 text-available" />
+        <DialogContent className="max-w-[85vw] sm:max-w-sm rounded-[32px] p-6 border-none bg-white shadow-2xl">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-full bg-available/10 flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-6 h-6 text-available" />
             </div>
             
-            <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Agendado!</h2>
-            <p className="text-white/80 text-sm font-medium mb-8">Seu horário de beleza está confirmado.</p>
+            <h2 className="text-xl font-bold text-slate-900 mb-1">Agendamento Confirmado</h2>
+            <p className="text-slate-500 text-xs mb-6">Alagoinhas, Bahia · {date ? format(date, "dd/MM/yy") : ""} às {selectedSlot?.split(' – ')[0]}</p>
 
-            {/* Ticket Card */}
-            <div className="w-full bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden mb-8">
-              <div className="p-6 bg-slate-50/50 border-b border-dashed border-slate-200">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Código de Validação</p>
-                <p className="text-5xl font-black text-slate-900 tracking-[0.1em]">{validationCode}</p>
-              </div>
-              
-              <div className="p-6 space-y-4">
-                <div className="flex justify-between items-center text-left">
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Onde será</p>
-                    <p className="text-sm font-black text-slate-800">Alagoinhas, Bahia</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Data e Hora</p>
-                    <p className="text-sm font-black text-slate-800">{date ? format(date, "dd/MM/yy") : ""} às {selectedSlot?.split(' – ')[0]}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mega Alert Print - Optimized for Mobile */}
-              <div className="bg-primary px-4 py-3 flex items-center justify-center gap-3">
-                <Smartphone className="w-4 h-4 text-white shrink-0" />
-                <p className="text-white font-black text-[10px] sm:text-xs uppercase tracking-tight leading-tight text-center">
-                  Tire um PRINT desta tela e mostre <br className="hidden sm:block"/> no dia do atendimento!
-                </p>
-              </div>
+            {/* Ultra Minimalist Code Box */}
+            <div className="w-full bg-slate-50 rounded-2xl p-6 mb-4 border border-slate-100">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Código de Validação</p>
+              <p className="text-4xl font-black text-slate-900 tracking-wider">{validationCode}</p>
             </div>
 
-            <div className="space-y-4 w-full">
-              <Button 
-                onClick={() => navigate("/meus-agendamentos")} 
-                className="w-full h-16 rounded-2xl text-lg font-black shadow-2xl shadow-primary/30 hover:scale-[1.02] transition-transform"
-              >
-                Concluído
-              </Button>
-              
-              <a 
-                href="https://wa.me/5575999999999" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-primary transition-colors"
-              >
-                <Sparkles className="w-4 h-4" />
-                Precisa de ajuda? Chame no Zap
-              </a>
+            {/* Simple Print Alert */}
+            <div className="flex items-center gap-2 mb-8 text-primary">
+              <Smartphone className="w-3.5 h-3.5" />
+              <p className="font-bold text-[10px] uppercase tracking-tight">Tire um print para mostrar no dia</p>
             </div>
+
+            <Button 
+              onClick={() => navigate("/meus-agendamentos")} 
+              className="w-full h-12 rounded-xl text-sm font-bold shadow-lg shadow-primary/20"
+            >
+              Ver Meus Tickets
+            </Button>
+            
+            <a 
+              href="https://wa.me/5575999999999" 
+              target="_blank" 
+              className="mt-4 text-[10px] font-bold text-slate-400 uppercase hover:text-primary transition-colors"
+            >
+              Dúvidas? Chame no WhatsApp
+            </a>
           </div>
         </DialogContent>
       </Dialog>
