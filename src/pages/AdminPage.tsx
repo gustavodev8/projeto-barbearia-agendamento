@@ -534,12 +534,12 @@ const AdminPage = () => {
                     <div className="pl-4 pr-2 py-3 flex items-center gap-3">
 
                       {/* Data + hora */}
-                      <div className="flex-shrink-0 flex flex-col items-center border-r border-slate-100 pr-3 w-[42px]">
-                        <span className="text-[9px] font-black text-primary uppercase tracking-widest leading-none">
+                      <div className="flex-shrink-0 flex flex-col items-center border-r border-slate-100 pr-3 whitespace-nowrap">
+                        <span className="text-[9px] font-black text-primary uppercase leading-none">
                           {format(new Date(b.date + "T12:00:00"), "dd MMM", { locale: ptBR })}
                         </span>
                         <span className="text-sm font-black text-slate-900 leading-snug mt-0.5">
-                          {b.slot}
+                          {b.slot.split(" - ")[0]}
                         </span>
                       </div>
 
