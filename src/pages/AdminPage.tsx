@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { format, addDays, startOfWeek, endOfWeek } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
@@ -55,10 +55,15 @@ const AdminPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [searchTerm,    setSearchTerm]    = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filterStatus,  setFilterStatus]  = useState<string>("all");
   const [dateRange,     setDateRange]     = useState<string>("today");
+  const [sortOrder,     setSortOrder]     = useState<"asc" | "desc">("asc");
 
-  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const todayStr     = format(new Date(), "yyyy-MM-dd");
+  const tomorrowStr  = format(addDays(new Date(), 1), "yyyy-MM-dd");
+  const weekStart    = format(startOfWeek(new Date(), { locale: ptBR }), "yyyy-MM-dd");
+  const weekEnd      = format(endOfWeek(new Date(),   { locale: ptBR }), "yyyy-MM-dd");
 
   const fetchBookings = async (silent = false) => {
     if (!silent) setLoading(true); else setIsRefreshing(true);
@@ -90,6 +95,11 @@ const AdminPage = () => {
 
   useEffect(() => { fetchBookings(); }, []);
 
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
   const updateBookingStatus = async (id: string, newStatus: BookingStatus) => {
     const previous = [...bookings];
     setBookings(prev => prev.map(b => b.id === id ? { ...b, status: newStatus } : b));
@@ -103,13 +113,42 @@ const AdminPage = () => {
     }
   };
 
-  const filteredBookings = useMemo(() => bookings.filter(b => {
-    const matchesSearch  = b.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           b.validationCode.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus  = filterStatus === "all" || b.status === filterStatus;
-    const matchesDate    = dateRange !== "today" || b.date === todayStr;
-    return matchesSearch && matchesStatus && matchesDate;
-  }), [bookings, searchTerm, filterStatus, dateRange, todayStr]);
+  const filteredBookings = useMemo(() => {
+    const term = debouncedSearch.toLowerCase().trim();
+
+    const filtered = bookings.filter(b => {
+      const matchesSearch = !term ||
+        b.clientName.toLowerCase().includes(term) ||
+        b.validationCode.toLowerCase().includes(term) ||
+        b.professionalName.toLowerCase().includes(term) ||
+        b.serviceName.toLowerCase().includes(term);
+
+      const matchesStatus = filterStatus === "all" || b.status === filterStatus;
+
+      const matchesDate =
+        dateRange === "all"    ? true :
+        dateRange === "amanha" ? b.date === tomorrowStr :
+        dateRange === "semana" ? b.date >= weekStart && b.date <= weekEnd :
+        b.date === todayStr;
+
+      return matchesSearch && matchesStatus && matchesDate;
+    });
+
+    return filtered.sort((a, b) =>
+      sortOrder === "asc"
+        ? a.slot.localeCompare(b.slot)
+        : b.slot.localeCompare(a.slot)
+    );
+  }, [bookings, debouncedSearch, filterStatus, dateRange, sortOrder, todayStr, tomorrowStr, weekStart, weekEnd]);
+
+  const hasActiveFilters = filterStatus !== "all" || dateRange !== "today" || sortOrder !== "asc";
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setFilterStatus("all");
+    setDateRange("today");
+    setSortOrder("asc");
+  };
 
   const stats = useMemo(() => {
     const today           = bookings.filter(b => b.date === todayStr);
@@ -341,20 +380,46 @@ const AdminPage = () => {
                       onChange={e => setFilterStatus(e.target.value)}
                     >
                       <option value="all">Status: Todos</option>
-                      <option value="confirmado">Pendentes</option>
-                      <option value="concluido">Concluídos</option>
+                      <option value="confirmado">Agendados</option>
+                      <option value="concluido">Finalizados</option>
+                      <option value="cancelado">Cancelados</option>
+                      <option value="nao_compareceu">Ausentes</option>
                     </select>
                     <select
                       className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-[12px] font-bold outline-none text-slate-700 shadow-sm"
                       value={dateRange}
                       onChange={e => setDateRange(e.target.value)}
                     >
-                      <option value="today">Apenas Hoje</option>
-                      <option value="all">Histórico</option>
+                      <option value="today">Hoje</option>
+                      <option value="amanha">Amanhã</option>
+                      <option value="semana">Esta semana</option>
+                      <option value="all">Todos</option>
+                    </select>
+                    <select
+                      className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-[12px] font-bold outline-none text-slate-700 shadow-sm col-span-2"
+                      value={sortOrder}
+                      onChange={e => setSortOrder(e.target.value as "asc" | "desc")}
+                    >
+                      <option value="asc">Horário: mais cedo primeiro</option>
+                      <option value="desc">Horário: mais tarde primeiro</option>
                     </select>
                   </div>
                 </CollapsibleContent>
               </Collapsible>
+
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[11px] font-bold text-slate-400">
+                  {filteredBookings.length} agendamento{filteredBookings.length !== 1 ? "s" : ""}
+                </span>
+                {(hasActiveFilters || debouncedSearch) && (
+                  <button
+                    onClick={clearFilters}
+                    className="text-[11px] font-black text-primary uppercase"
+                  >
+                    Limpar filtros
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="space-y-4 max-w-md mx-auto pb-10">
