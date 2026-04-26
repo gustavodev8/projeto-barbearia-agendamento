@@ -357,69 +357,111 @@ const AdminPage = () => {
               </Collapsible>
             </div>
 
-            <div className="space-y-3">
-              {filteredBookings.map(b => (
-                <div key={b.id} className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm space-y-4">
-                  <div className="flex justify-between items-start gap-4">
-                    <div>
-                      <p className="text-[16px] font-black tracking-tight text-slate-900">{b.clientName}</p>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{b.serviceName}</span>
-                        <span className="text-slate-300">·</span>
-                        <span className="text-[11px] font-bold text-amber-600 uppercase">#{b.validationCode}</span>
+            <div className="space-y-4 max-w-md mx-auto pb-10">
+              {filteredBookings.length > 0 ? (
+                filteredBookings.map(b => (
+                  <div
+                    key={b.id}
+                    className={cn(
+                      "relative bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm transition-all active:scale-[0.99]",
+                      b.status === "confirmado" && "ring-1 ring-primary/5"
+                    )}
+                  >
+                    {/* Barra de Status Lateral */}
+                    <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", STATUS_CONFIG[b.status].bg.replace("bg-", "bg-").replace("100", "500"))} />
+
+                    <div className="flex items-stretch p-4 gap-4">
+                      {/* Horário */}
+                      <div className="flex flex-col items-center justify-center border-r border-slate-50 pr-4 min-w-[70px]">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                          Início
+                        </span>
+                        <span className="text-xl font-black text-slate-900 leading-none">
+                          {b.slot}
+                        </span>
+                      </div>
+
+                      {/* Info Principal */}
+                      <div className="flex-1 min-w-0 py-0.5">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-base font-black text-slate-900 truncate leading-tight">
+                            {b.clientName}
+                          </p>
+                          <Badge
+                            className={cn(
+                              "text-[8px] font-black px-1.5 py-0 rounded-md border-none uppercase flex-shrink-0",
+                              STATUS_CONFIG[b.status].bg, STATUS_CONFIG[b.status].color
+                            )}
+                          >
+                            {STATUS_CONFIG[b.status].label}
+                          </Badge>
+                        </div>
+                        
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide truncate mb-2">
+                          {b.serviceName}
+                        </p>
+
+                        {/* Código de Validação Estilizado */}
+                        <div className="inline-flex items-center bg-slate-50 rounded-lg px-2.5 py-1 border border-slate-100 group">
+                          <span className="text-[9px] font-black text-slate-400 uppercase mr-2 tracking-tighter">
+                            Check-in:
+                          </span>
+                          <span className="text-[11px] font-black text-primary tracking-widest">
+                            {b.validationCode}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Ações */}
+                      <div className="flex flex-col justify-between items-end gap-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-300 transition-colors">
+                              <MoreVertical className="h-4 w-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48 p-2 rounded-xl shadow-xl border-slate-100">
+                            <DropdownMenuItem className="rounded-lg font-bold py-2.5 px-4 text-xs cursor-pointer gap-2">
+                              <RefreshCw className="h-3.5 w-3.5 text-slate-400" /> Reagendar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => updateBookingStatus(b.id, "nao_compareceu")}
+                              className="rounded-lg font-bold py-2.5 px-4 text-xs cursor-pointer"
+                            >
+                              Marcar Ausente
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => updateBookingStatus(b.id, "cancelado")}
+                              className="rounded-lg font-bold py-2.5 px-4 text-xs text-rose-500 cursor-pointer"
+                            >
+                              Cancelar Agendamento
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        {b.status === "confirmado" && (
+                          <Button
+                            onClick={() => updateBookingStatus(b.id, "concluido")}
+                            className="h-8 px-4 rounded-lg bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-md active:shadow-none hover:bg-slate-800 transition-all"
+                          >
+                            Finalizar
+                          </Button>
+                        )}
                       </div>
                     </div>
-                    <Badge
-                      className={cn(
-                        "text-[10px] font-black px-2.5 py-1 rounded-md border-none flex-shrink-0",
-                        STATUS_CONFIG[b.status].bg, STATUS_CONFIG[b.status].color
-                      )}
-                    >
-                      {STATUS_CONFIG[b.status].label}
-                    </Badge>
                   </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                    <div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block leading-none">
-                        Horário
-                      </span>
-                      <span className="text-lg font-black text-slate-900 mt-1 block">
-                        {b.slot.split(":")[0]}h
-                      </span>
-                    </div>
-                    <div className="flex gap-3">
-                      <Button
-                        onClick={() => updateBookingStatus(b.id, "concluido")}
-                        className="h-10 px-6 rounded-xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-wider"
-                      >
-                        Validar
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="h-10 w-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm">
-                            <MoreVertical className="h-5 w-5 text-slate-400" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48 p-2 rounded-2xl shadow-xl">
-                          <DropdownMenuItem
-                            onClick={() => updateBookingStatus(b.id, "nao_compareceu")}
-                            className="rounded-xl font-bold py-2.5 px-4 text-sm cursor-pointer"
-                          >
-                            Ausente
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => updateBookingStatus(b.id, "cancelado")}
-                            className="rounded-xl font-bold py-2.5 px-4 text-sm text-rose-500 cursor-pointer"
-                          >
-                            Cancelar
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                ))
+              ) : (
+                <div className="py-20 text-center space-y-4">
+                  <div className="bg-slate-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto border border-slate-100">
+                    <CalendarIcon className="h-7 w-7 text-slate-300" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-slate-900">Nenhum resultado</p>
+                    <p className="text-[11px] font-medium text-slate-400">Tente ajustar seus filtros de busca.</p>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
