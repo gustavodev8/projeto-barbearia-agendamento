@@ -25,6 +25,7 @@ export interface Booking {
   date: string;
   slot: string;
   clientName: string;
+  validationCode: string;
 }
 
 export interface TimeSlot {

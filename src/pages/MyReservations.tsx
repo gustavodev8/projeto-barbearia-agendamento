@@ -3,7 +3,7 @@ import { useReservations } from "@/contexts/ReservationContext";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Header from "@/components/Header";
-import { CalendarDays, Clock, MapPin, X, Sparkles, AlertCircle } from "lucide-react";
+import { CalendarDays, Clock, MapPin, X, Sparkles, AlertCircle, Smartphone } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -67,33 +67,41 @@ const MyReservations = () => {
                   </div>
 
                   <div className="space-y-3 pt-4 border-t border-border/40">
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <CalendarDays className="w-4 h-4 text-primary" />
-                      <span className="font-medium text-foreground">
-                        {format(parseISO(b.date), "EEEE, dd 'de' MMMM", { locale: ptBR })}
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <CalendarDays className="w-4 h-4 text-primary" />
+                        <span className="font-medium text-foreground">
+                          {format(parseISO(b.date), "EEEE, dd 'de' MMMM", { locale: ptBR })}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <Clock className="w-4 h-4 text-primary" />
                       <span className="font-medium text-foreground">{b.slot.split(' – ')[0]}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      <span className="text-xs">Alagoinhas, Bahia</span>
-                    </div>
                   </div>
 
-                  <div className="mt-6 flex items-center gap-2 bg-available/5 p-3 rounded-2xl border border-available/10">
-                    <Sparkles className="w-4 h-4 text-available" />
-                    <span className="text-[10px] font-bold text-available uppercase tracking-widest">Agendamento Confirmado</span>
+                  <div className="mt-6 p-4 bg-slate-900 rounded-2xl text-center relative overflow-hidden group">
+                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-1">Código de Validação</p>
+                    <p className="text-2xl font-black text-white tracking-[0.3em]">{b.validationCode}</p>
                   </div>
+
+                  <a 
+                    href={`https://wa.me/5575999999999?text=${encodeURIComponent(`Olá, gostaria de falar sobre meu agendamento:\n\nServiço: ${b.serviceName}\nData: ${b.date}\nCódigo: ${b.validationCode}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 w-full py-3 rounded-2xl border border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all"
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    Cancelar ou Remarcar
+                  </a>
                 </div>
               </motion.div>
             ))}
 
             <div className="bg-orange-50/50 border border-orange-100 rounded-3xl p-5 flex gap-4 mt-8">
               <AlertCircle className="w-5 h-5 text-orange-400 shrink-0" />
-              <p className="text-[11px] text-orange-700 leading-relaxed">
+              <p className="text-[13px] text-orange-700 leading-relaxed">
                 <strong>Precisa desmarcar?</strong> Por favor, cancele com pelo menos 2h de antecedência para liberar o horário para outra cliente.
               </p>
             </div>

@@ -1,22 +1,21 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "@/components/Header";
-import { profissionais, servicos, timeSlots } from "@/data/mockData";
+import { Professional, Service, timeSlots } from "@/data/mockData";
 import { useReservations } from "@/contexts/ReservationContext";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/lib/supabase";
 import {
   ArrowLeft,
-  ArrowRight,
-  Check,
   CheckCircle2,
-  Clock,
   CreditCard,
-  Sparkles,
   Smartphone,
   CalendarDays,
+  Clock,
+  Sparkles,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -24,18 +23,10 @@ import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 
-const morningSlots = timeSlots.slice(0, 6);
-const afternoonSlots = timeSlots.slice(6);
-
-type PaymentMethod = "pix" | "credito" | "debito";
-
-const paymentOptions: { key: PaymentMethod; label: string; icon: React.ReactNode }[] = [
+const paymentOptions: { key: "pix" | "credito" | "debito"; label: string; icon: React.ReactNode }[] = [
   { key: "pix", label: "Pix", icon: <Smartphone className="w-4 h-4" /> },
   { key: "credito", label: "Crédito", icon: <CreditCard className="w-4 h-4" /> },
   { key: "debito", label: "Débito", icon: <CreditCard className="w-4 h-4" /> },
@@ -46,32 +37,82 @@ const BookingPage = () => {
   const navigate = useNavigate();
   const { bookings, addBooking } = useReservations();
 
-  const professional = profissionais.find((p) => p.id === id);
+  const [professional, setProfessional] = useState<Professional | null>(null);
+  const [servicesList, setServicesList] = useState<Service[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
   const [step, setStep] = useState(1);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [selectedSlot, setSelectedSlot] = useState<string>("");
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [clientName, setClientName] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
+  const [paymentMethod, setPaymentMethod] = useState<"pix" | "credito" | "debito">("pix");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [validationCode, setValidationCode] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const selectedService = servicos.find((s) => s.id === selectedServiceId);
+  // Busca profissional e serviços do Supabase
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoadingData(true);
+      
+      // Busca profissional
+      const { data: profData } = await supabase
+        .from('professionals')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (profData) setProfessional(profData);
+
+      // Busca serviços
+      const { data: servData } = await supabase
+        .from('services')
+        .select('*')
+        .eq('available', true);
+      
+      if (servData) {
+        // Formata os preços que vêm como string/decimal do banco
+        const formattedServices = servData.map(s => ({
+          ...s,
+          price: Number(s.price),
+          durationMinutes: s.duration_minutes
+        }));
+        setServicesList(formattedServices);
+      }
+      
+      setLoadingData(false);
+    };
+
+    fetchData();
+  }, [id]);
+
+  const selectedService = servicesList.find((s) => s.id === selectedServiceId);
 
   const occupiedSlots = useMemo(() => {
-    if (!date || !professional) return new Set<string>();
-    const dateStr = format(date, "yyyy-MM-dd");
-    return new Set(
-      bookings
-        .filter((b) => b.professionalId === professional.id && b.date === dateStr)
-        .map((b) => b.slot)
-    );
+    if (!date || !professional || !bookings) return new Set<string>();
+    try {
+      const dateStr = format(date, "yyyy-MM-dd");
+      return new Set(
+        bookings
+          .filter((b) => b.professionalId === professional.id && b.date === dateStr)
+          .map((b) => b.slot)
+      );
+    } catch (e) {
+      return new Set<string>();
+    }
   }, [date, professional, bookings]);
 
-  const handleConfirm = () => {
-    if (!professional || !date || !selectedSlot || !selectedService || !clientName.trim()) return;
-    addBooking({
-      id: `b-${Date.now()}`,
+  const handleConfirm = async () => {
+    if (!professional || !date || !selectedSlot || !selectedService || !clientName.trim() || isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const formattedCode = `${code.slice(0, 3)} ${code.slice(3)}`;
+    
+    const success = await addBooking({
+      id: `temp-${Date.now()}`,
       professionalId: professional.id,
       professionalName: professional.name,
       serviceId: selectedService.id,
@@ -80,18 +121,41 @@ const BookingPage = () => {
       date: format(date, "yyyy-MM-dd"),
       slot: selectedSlot,
       clientName: clientName.trim(),
+      validationCode: formattedCode,
     });
-    setShowSuccess(true);
+
+    if (success) {
+      setValidationCode(formattedCode);
+      setShowSuccess(true);
+    } else {
+      alert("Erro ao realizar agendamento. Tente novamente.");
+    }
+    setIsSubmitting(false);
   };
 
-  if (!professional) return null;
+  if (loadingData) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Carregando agenda...</p>
+      </div>
+    );
+  }
+
+  if (!professional) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+        <h2 className="text-xl font-bold text-foreground">Profissional não encontrada</h2>
+        <Button onClick={() => navigate("/")} className="mt-4">Voltar ao Início</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-secondary/30 pb-20 font-sans">
       <Header />
       
       <main className="max-w-md mx-auto px-5 py-8">
-        {/* Progress Header */}
         <div className="mb-8 flex items-center justify-between">
           <button
             onClick={() => step === 1 ? navigate("/profissionais") : setStep(step - 1)}
@@ -110,11 +174,10 @@ const BookingPage = () => {
               />
             ))}
           </div>
-          <div className="w-10" /> {/* Spacer */}
+          <div className="w-10" />
         </div>
 
         <AnimatePresence mode="wait">
-          {/* STEP 1: SERVICE */}
           {step === 1 && (
             <motion.div
               key="step1"
@@ -128,28 +191,72 @@ const BookingPage = () => {
                 <p className="text-sm text-muted-foreground mt-1">Selecione o serviço com {professional.name.split(' ')[0]}.</p>
               </header>
 
-              <div className="space-y-3">
-                {servicos.map((svc) => (
-                  <button
-                    key={svc.id}
-                    onClick={() => setSelectedServiceId(svc.id)}
-                    className={cn(
-                      "w-full text-left rounded-3xl border p-4 transition-all flex items-center gap-4",
-                      selectedServiceId === svc.id
-                        ? "border-primary bg-primary/5 ring-1 ring-primary/20 shadow-lg shadow-primary/5"
-                        : "border-border/60 bg-white hover:border-primary/20"
-                    )}
-                  >
-                    <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0">
-                      <img src={svc.image} alt={svc.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-bold text-foreground text-sm">{svc.name}</p>
-                      <p className="text-[11px] text-muted-foreground">{svc.durationMinutes} min</p>
-                    </div>
-                    <p className="font-bold text-primary text-sm">R${svc.price}</p>
-                  </button>
-                ))}
+              <div className="space-y-4">
+                {servicesList.map((svc, i) => {
+                  const isSelected = selectedServiceId === svc.id;
+                  return (
+                    <motion.button
+                      key={svc.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      onClick={() => setSelectedServiceId(svc.id)}
+                      className={cn(
+                        "w-full text-left rounded-[32px] p-5 transition-all duration-300 flex items-center gap-5 relative group",
+                        isSelected
+                          ? "bg-white border-2 border-primary shadow-2xl shadow-primary/10 scale-[1.02]"
+                          : "bg-white border border-border/40 hover:border-primary/30 hover:shadow-md shadow-sm"
+                      )}
+                    >
+                      <AnimatePresence>
+                        {isSelected && (
+                          <motion.div
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white shadow-lg z-10"
+                          >
+                            <CheckCircle2 className="w-5 h-5" />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      <div className="relative w-20 h-20 shrink-0">
+                        <div className={cn(
+                          "w-full h-full rounded-[24px] overflow-hidden shadow-inner bg-slate-100 transition-transform duration-500",
+                          isSelected ? "scale-110" : "group-hover:scale-105"
+                        )}>
+                          {svc.image && (
+                            <img src={svc.image} alt={svc.name} className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start mb-1">
+                          <h3 className={cn(
+                            "font-black text-base tracking-tight transition-colors",
+                            isSelected ? "text-primary" : "text-slate-900"
+                          )}>
+                            {svc.name}
+                          </h3>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2 mb-2 font-medium">
+                          {svc.description}
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md">
+                             <Clock className="w-3.5 h-3.5 text-primary" />
+                             {svc.durationMinutes} min
+                          </div>
+                          <div className="text-base font-black text-primary">
+                            R${svc.price}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.button>
+                  );
+                })}
               </div>
 
               <Button 
@@ -162,7 +269,6 @@ const BookingPage = () => {
             </motion.div>
           )}
 
-          {/* STEP 2: DATE & TIME */}
           {step === 2 && (
             <motion.div
               key="step2"
@@ -188,14 +294,31 @@ const BookingPage = () => {
               </div>
 
               {date && (
-                <div className="space-y-4">
+                <motion.div 
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.03
+                      }
+                    }
+                  }}
+                  className="space-y-4"
+                >
                   <div className="grid grid-cols-3 gap-2">
                     {timeSlots.map((slot) => {
                       const isOccupied = occupiedSlots.has(slot.label);
                       const isSelected = selectedSlot === slot.label;
                       return (
-                        <button
+                        <motion.button
                           key={slot.label}
+                          variants={{
+                            hidden: { opacity: 0, y: 10 },
+                            visible: { opacity: 1, y: 0 }
+                          }}
                           disabled={isOccupied}
                           onClick={() => setSelectedSlot(slot.label)}
                           className={cn(
@@ -206,11 +329,11 @@ const BookingPage = () => {
                           )}
                         >
                           {slot.label.split(' – ')[0]}
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
-                </div>
+                </motion.div>
               )}
 
               <Button 
@@ -223,7 +346,6 @@ const BookingPage = () => {
             </motion.div>
           )}
 
-          {/* STEP 3: PAYMENT & DATA */}
           {step === 3 && (
             <motion.div
               key="step3"
@@ -244,7 +366,7 @@ const BookingPage = () => {
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-border/40">
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Data</span>
-                  <span className="text-sm font-bold text-foreground">{date ? format(date, "dd/MM/yyyy") : ""} às {selectedSlot.split(' – ')[0]}</span>
+                  <span className="text-sm font-bold text-foreground">{date ? format(date, "dd/MM/yyyy") : ""} às {selectedSlot?.split(' – ')[0]}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Valor</span>
@@ -288,10 +410,10 @@ const BookingPage = () => {
 
               <Button 
                 onClick={handleConfirm} 
-                disabled={!clientName.trim()} 
+                disabled={!clientName.trim() || isSubmitting} 
                 className="w-full h-14 rounded-2xl text-lg font-bold shadow-lg shadow-primary/20"
               >
-                Finalizar Agendamento
+                {isSubmitting ? "Finalizando..." : "Finalizar Agendamento"}
               </Button>
             </motion.div>
           )}
@@ -304,19 +426,67 @@ const BookingPage = () => {
         </footer>
       </main>
 
-      {/* Modal de sucesso */}
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
-        <DialogContent className="max-w-[90vw] sm:max-w-sm rounded-[40px] p-8 border-none overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-32 bg-primary/10 -z-10" />
-          <div className="flex flex-col items-center text-center">
-            <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6 shadow-xl shadow-primary/10">
-              <CheckCircle2 className="w-12 h-12 text-available" />
+        <DialogContent className="max-w-[90vw] sm:max-w-md rounded-[40px] p-0 border-none overflow-hidden bg-white shadow-2xl">
+          <div className="absolute top-0 left-0 right-0 h-48 bg-primary -z-10" />
+          
+          <div className="px-8 pt-10 pb-8 flex flex-col items-center text-center">
+            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center mb-6 shadow-2xl animate-bounce">
+              <CheckCircle2 className="w-14 h-14 text-available" />
             </div>
-            <h2 className="text-2xl font-extrabold text-foreground mb-2">Tudo pronto!</h2>
-            <p className="text-sm text-muted-foreground mb-8">Seu horário foi reservado com sucesso. Te esperamos em breve!</p>
-            <Button onClick={() => navigate("/")} className="w-full h-14 rounded-2xl text-lg font-bold">
-              Voltar ao Início
-            </Button>
+            
+            <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Agendado!</h2>
+            <p className="text-white/80 text-sm font-medium mb-8">Seu horário de beleza está confirmado.</p>
+
+            {/* Ticket Card */}
+            <div className="w-full bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden mb-8">
+              <div className="p-6 bg-slate-50/50 border-b border-dashed border-slate-200">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Código de Validação</p>
+                <p className="text-5xl font-black text-slate-900 tracking-[0.1em]">{validationCode}</p>
+              </div>
+              
+              <div className="p-6 space-y-4">
+                <div className="flex justify-between items-center text-left">
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Onde será</p>
+                    <p className="text-sm font-black text-slate-800">Alagoinhas, Bahia</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Data e Hora</p>
+                    <p className="text-sm font-black text-slate-800">{date ? format(date, "dd/MM/yy") : ""} às {selectedSlot?.split(' – ')[0]}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mega Alert Print */}
+              <div className="bg-primary px-6 py-4 flex items-center justify-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                   <Smartphone className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-white font-black text-xs uppercase tracking-tighter leading-tight">
+                  Tire um PRINT agora e mostre <br/> no dia do atendimento!
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4 w-full">
+              <Button 
+                onClick={() => navigate("/meus-agendamentos")} 
+                className="w-full h-16 rounded-2xl text-lg font-black shadow-2xl shadow-primary/30 hover:scale-[1.02] transition-transform"
+              >
+                Concluído
+              </Button>
+              
+              <a 
+                href="https://wa.me/5575999999999" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-primary transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                Precisa de ajuda? Chame no Zap
+              </a>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
