@@ -1,10 +1,21 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarDays, LayoutDashboard, Sparkles, ArrowRight, Instagram, MapPin, Phone } from "lucide-react";
 import { motion } from "framer-motion";
 import { servicos } from "@/data/mockData";
+import AdminLoginModal from "@/components/AdminLoginModal";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [loginOpen, setLoginOpen] = useState(false);
+
+  const handleAdminClick = () => {
+    if (sessionStorage.getItem("admin_auth") === "1") {
+      navigate("/admin");
+    } else {
+      setLoginOpen(true);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
@@ -121,7 +132,7 @@ const LandingPage = () => {
       {/* Admin Quick Access (Discreet) */}
       <footer className="py-8 flex flex-col items-center gap-4">
         <button
-          onClick={() => navigate("/admin")}
+          onClick={handleAdminClick}
           className="flex items-center gap-1.5 text-[10px] text-muted-foreground/40 hover:text-primary transition-colors uppercase tracking-[0.2em]"
         >
           <LayoutDashboard className="w-3 h-3" />
@@ -136,6 +147,8 @@ const LandingPage = () => {
           </p>
         </div>
       </footer>
+
+      <AdminLoginModal open={loginOpen} onOpenChange={setLoginOpen} />
     </div>
   );
 };
