@@ -1,61 +1,86 @@
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import unnamedLogo from "@/unnamed.png";
+import { toast } from "sonner";
 
 const Login = () => {
-  const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email, password);
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast.error("Credenciais inválidas.");
+      setLoading(false);
+      return;
+    }
+
+    toast.success("Acesso autorizado.");
+    navigate("/admin");
+    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-primary/10 via-background to-primary/5">
-      <Card className="w-full max-w-sm shadow-xl border-border/60">
-        <CardHeader className="items-center pb-2 pt-8">
-          <img src={unnamedLogo} alt="Logo UNAMED" className="w-24 h-24 object-contain mb-3 drop-shadow-sm" />
-          <h1 className="text-2xl font-bold text-foreground">Reserva FSSS</h1>
-          <p className="text-sm text-muted-foreground text-center">
-            Acesso restrito a professores e funcionários
-          </p>
-        </CardHeader>
-        <CardContent className="pb-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full mt-2">
-              Entrar
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 font-sans">
+      <div className="w-full max-w-[320px]">
+        <div className="text-center mb-12">
+          <h1 className="text-xl font-bold text-slate-900 uppercase tracking-[0.2em]">Painel Admin</h1>
+          <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-2">Identifique-se para continuar</p>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-[10px] font-bold uppercase text-slate-400 ml-1">E-mail</Label>
+            <Input
+              id="email"
+              type="email"
+              className="h-12 rounded-lg border-slate-100 bg-slate-50 px-4 focus-visible:ring-primary/20 text-sm"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="pass" className="text-[10px] font-bold uppercase text-slate-400 ml-1">Senha</Label>
+            <Input
+              id="pass"
+              type="password"
+              className="h-12 rounded-lg border-slate-100 bg-slate-50 px-4 focus-visible:ring-primary/20 text-sm"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <Button 
+            type="submit" 
+            disabled={loading}
+            className="w-full h-12 rounded-lg text-sm font-bold bg-slate-900 hover:bg-slate-800 text-white transition-all shadow-sm"
+          >
+            {loading ? "Verificando..." : "Entrar"}
+          </Button>
+        </form>
+
+        <button
+          onClick={() => navigate("/")}
+          className="mt-10 w-full text-[10px] font-bold text-slate-300 uppercase tracking-widest hover:text-primary transition-colors text-center"
+        >
+          Voltar ao site
+        </button>
+      </div>
     </div>
   );
 };
