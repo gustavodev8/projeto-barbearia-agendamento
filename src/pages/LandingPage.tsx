@@ -72,9 +72,13 @@ const LandingPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="inline-block text-primary text-[11px] font-black tracking-[0.35em] uppercase mb-4 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/20">
-              ✦ Studio de Beleza
-            </span>
+            <div className="flex items-center justify-center gap-3 mb-5">
+              <span className="block w-8 h-px bg-white/40" />
+              <span className="text-white/70 text-[10px] font-bold tracking-[0.45em] uppercase">
+                Studio de Beleza
+              </span>
+              <span className="block w-8 h-px bg-white/40" />
+            </div>
             <h1 className="text-[2.6rem] font-black text-white leading-[1.08] tracking-tight mb-3">
               Sua beleza,<br />nossa arte.
             </h1>
